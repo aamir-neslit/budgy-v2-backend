@@ -1,17 +1,33 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { FilterQuery, PaginateModel, PaginateOptions } from 'mongoose';
 import { generateRandomDigits } from 'src/common/utils/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/user.schema';
+import { User } from '../../Models/user.schema';
 import { ChangePassDTO, UpdateProfileDTO } from './dto';
 import { SignUpDTO } from '../auth/dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectModel(User.name) private userModel: PaginateModel<User>,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: PaginateModel<User>) {}
+
+  async updateUserFirstSubAccount(
+    userId: string,
+    subAccountId: string,
+  ): Promise<User> {
+    return this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { selectedSubAccount: subAccountId },
+        { new: true },
+      )
+      .exec();
+  }
 
   async create(dto: SignUpDTO): Promise<User> {
     const userInDB = await this.userModel.findOne({ email: dto.email });
@@ -41,12 +57,16 @@ export class UserService {
     return user;
   }
 
-  async findByIdandUpdate(userId: string, dto: UpdateProfileDTO): Promise<User> {
-    const user = await this.userModel.findByIdAndUpdate(userId, dto, { new: true }).exec();
+  async findByIdandUpdate(
+    userId: string,
+    dto: UpdateProfileDTO,
+  ): Promise<User> {
+    const user = await this.userModel
+      .findByIdAndUpdate(userId, dto, { new: true })
+      .exec();
 
     if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
 
-    user.authCode = undefined;
     user.password = undefined;
     return user;
   }
@@ -57,10 +77,11 @@ export class UserService {
 
   async forgotPassword(email: string): Promise<{ result: string }> {
     const userInDB = await this.userModel.findOne({ email: email });
-    if (!userInDB) throw new NotFoundException(`User with email ${email} not found`);
+    if (!userInDB)
+      throw new NotFoundException(`User with email ${email} not found`);
 
     const OTPCode = generateRandomDigits(6);
-    userInDB.authCode = OTPCode.toString();
+    // userInDB.authCode = OTPCode.toString();
     await userInDB.save();
 
     return {
@@ -68,11 +89,16 @@ export class UserService {
     };
   }
 
-  async resetPassword(email: string, authCode: string, newPassword: string): Promise<{ result: string }> {
+  async resetPassword(
+    email: string,
+    authCode: string,
+    newPassword: string,
+  ): Promise<{ result: string }> {
     const user = await this.userModel.findOne({ email: email });
 
-    if (!user) throw new NotFoundException(`User with email ${email} not found`);
-    if (user.authCode !== authCode) throw new BadRequestException(`You have entered an invalid authcode`);
+    if (!user)
+      throw new NotFoundException(`User with email ${email} not found`);
+    // if (user.authCode !== authCode) throw new BadRequestException(`You have entered an invalid authcode`);
 
     user.password = newPassword;
     await user.save();
@@ -92,7 +118,7 @@ export class UserService {
     await user.save();
 
     user.password = undefined;
-    user.authCode = undefined;
+    // user.authCode = undefined;
 
     return { result: 'Your password has been changed successfully.' };
   }

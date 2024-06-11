@@ -1,9 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { User } from '../user/schemas/user.schema';
+import { User } from '../../Models/user.schema';
 import { UserService } from '../user/user.service';
-import { ForgotPassDTO, ResetPassDTO, SignInDTO, SignUpDTO } from './dto';
+import {
+  ForgotPassDTO,
+  ResetPassDTO,
+  SignInDTO,
+  SignInResponseDTO,
+  SignUpDTO,
+} from './dto';
 import * as bcrypt from 'bcrypt';
 import { JWTDecodedUserI } from 'src/interfaces';
 
@@ -15,7 +21,10 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
-  async signToken(userId: string, email: string): Promise<{ access_token: string }> {
+  async signToken(
+    userId: string,
+    email: string,
+  ): Promise<{ access_token: string }> {
     const payload = { sub: userId, email };
     const jwtSecret = this.config.get('JWT_SECRET');
 
@@ -43,7 +52,7 @@ export class AuthService {
     }
   }
 
-  async signin(dto: SignInDTO): Promise<{ user: User; token: string }> {
+  async signin(dto: SignInDTO): Promise<SignInResponseDTO> {
     const user = await this.userService.findByEmail(dto.email);
     const isMatch = await bcrypt.compare(dto.password, user.password);
     if (!isMatch) {
@@ -53,8 +62,10 @@ export class AuthService {
     return { user, token: token.access_token };
   }
 
-  async signup(dto: SignUpDTO): Promise<User> {
-    return await this.userService.create(dto);
+  async signup(dto: SignUpDTO): Promise<SignInResponseDTO> {
+    const user = await this.userService.create(dto);
+    const token = await this.signToken(user._id, user.email);
+    return { user, token: token.access_token };
   }
 
   async forgotPassword(dto: ForgotPassDTO): Promise<{ result: string }> {
@@ -62,6 +73,10 @@ export class AuthService {
   }
 
   async resetPassword(dto: ResetPassDTO): Promise<{ result: string }> {
-    return await this.userService.resetPassword(dto.email, dto.authCode, dto.newPassword);
+    return await this.userService.resetPassword(
+      dto.email,
+      dto.authCode,
+      dto.newPassword,
+    );
   }
 }
