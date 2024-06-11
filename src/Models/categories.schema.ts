@@ -4,16 +4,16 @@ import { BaseSchema } from 'src/common/schemas';
 
 @Schema()
 export class Categories extends BaseSchema {
-  @Prop({ default: null })
+  @Prop()
   type: string;
 
-  @Prop({ default: 0 })
+  @Prop()
   label: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'SubAccount', default: null, _id: false })
+  @Prop({ type: Types.ObjectId, ref: 'SubAccount', default: null })
   subAccountId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', default: null, _id: false })
+  @Prop({ type: Types.ObjectId, ref: 'User', default: null })
   userId: Types.ObjectId;
 }
 

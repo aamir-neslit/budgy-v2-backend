@@ -17,27 +17,20 @@ import { Currency, Gender } from 'src/common/enums/user.enum';
 
 @Schema()
 export class User extends BaseSchema {
-  @Prop({ default: null })
-  @IsString()
+  @Prop()
   profilePicture: string;
 
-  @Prop({ default: null })
-  @IsNotEmpty()
+  @Prop()
   name: string;
 
   @Prop({ unique: true, lowercase: true })
   @IsEmail()
-  @IsNotEmpty()
   email: string;
 
   @Prop()
-  @IsString()
-  @IsNotEmpty()
   password: string;
 
   @Prop()
-  @IsBoolean()
-  @IsNotEmpty()
   notificationsEnables: boolean;
 
   @Prop({ enum: Gender, default: Gender.MAN })
@@ -45,16 +38,12 @@ export class User extends BaseSchema {
   gender: Gender;
 
   @Prop({ enum: Currency, default: Currency.PKR })
-  @IsString()
-  @IsNotEmpty()
   currencyCode: string;
 
   @Prop({ default: 0 })
-  @IsNumber()
-  @IsNotEmpty()
   balance: number;
 
-  @Prop({ type: Types.ObjectId, ref: 'SubAccount', default: null, _id: false })
+  @Prop({ type: Types.ObjectId, ref: 'SubAccount', default: null })
   selectedSubAccount: Types.ObjectId;
 }
 

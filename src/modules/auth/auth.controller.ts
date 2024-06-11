@@ -1,15 +1,17 @@
-import { UserService } from 'src/modules/user/user.service';
-import { CategoriesService } from './../categories/categories.service';
 import { Body, Controller, Post } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { ForgotPassDTO, ResetPassDTO, SignInDTO, SignUpDTO } from './dto';
-import { SubAccountService } from '../subAccounts/subAccount.service';
-import { CreateSubAccountDTO } from '../subAccounts/dto';
-import { CreateCatgoryDTO } from '../categories/dto';
 import {
   defaultCategories,
   defaultSubAccounts,
 } from 'src/common/constants/user.constant';
+import { UserService } from 'src/modules/user/user.service';
+import { CreateCatgoryDTO } from '../categories/dto';
+import { CreateSubAccountDTO } from '../sub-accounts/dto';
+import { SubAccountService } from '../sub-accounts/sub-account.service';
+import { CategoriesService } from './../categories/categories.service';
+import { AuthService } from './auth.service';
+import { SignInDTO, SignUpDTO } from './dto';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 @Controller('auth')
 export class AuthController {
@@ -18,6 +20,7 @@ export class AuthController {
     private subAccountService: SubAccountService,
     private categoriesService: CategoriesService,
     private userService: UserService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   @Post('signin')
@@ -26,45 +29,80 @@ export class AuthController {
   }
 
   @Post('signup')
-  async signup(@Body() dto: SignUpDTO) {
-    const { user, token } = await this.authService.signup(dto);
-    const subAccountPromises = defaultSubAccounts.map(async (accountName) => {
-      const createSubAccountDto: CreateSubAccountDTO = {
-        name: accountName,
-        userId: user._id,
-      };
-      const subAccount =
-        await this.subAccountService.create(createSubAccountDto);
+  // async signup(@Body() dto: SignUpDTO) {
+  //   const { user, token } = await this.authService.signup(dto);
+  //   const subAccountPromises = defaultSubAccounts.map(async (accountName) => {
+  //     const createSubAccountDto: CreateSubAccountDTO = {
+  //       name: accountName,
+  //       userId: user._id,
+  //     };
+  //     const subAccount =
+  //       await this.subAccountService.create(createSubAccountDto);
 
-      const categoryPromises = defaultCategories.map(async (category) => {
-        const createCategoryDto: CreateCatgoryDTO = {
-          type: category.type,
-          label: category.label,
-          subAccountId: subAccount._id,
+  //     const categoryPromises = defaultCategories.map(async (category) => {
+  //       const createCategoryDto: CreateCatgoryDTO = {
+  //         type: category.type,
+  //         label: category.label,
+  //         subAccountId: subAccount._id,
+  //         userId: user._id,
+  //       };
+  //       return this.categoriesService.create(createCategoryDto);
+  //     });
+
+  //     await Promise.all(categoryPromises);
+  //     return subAccount;
+  //   });
+
+  //   const createdSubAccounts = await Promise.all(subAccountPromises);
+  //   await this.userService.updateUserFirstSubAccount(
+  //     user._id,
+  //     createdSubAccounts[0]._id,
+  //   );
+  //   return { user, token };
+  // }
+  async signup(@Body() dto: SignUpDTO) {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+    try {
+      const { user, token } = await this.authService.signup(dto);
+      const subAccountPromises = defaultSubAccounts.map(async (accountName) => {
+        const createSubAccountDto: CreateSubAccountDTO = {
+          name: accountName,
           userId: user._id,
         };
-        return this.categoriesService.create(createCategoryDto);
+        const subAccount = await this.subAccountService.create(
+          createSubAccountDto,
+          session,
+        );
+
+        const categoryPromises = defaultCategories.map(async (category) => {
+          const createCategoryDto: CreateCatgoryDTO = {
+            type: category.type,
+            label: category.label,
+            subAccountId: subAccount._id,
+            userId: user._id,
+          };
+          return this.categoriesService.create(createCategoryDto, session);
+        });
+
+        await Promise.all(categoryPromises);
+        return subAccount;
       });
 
-      await Promise.all(categoryPromises);
-      return subAccount;
-    });
+      const createdSubAccounts = await Promise.all(subAccountPromises);
+      await this.userService.updateUserFirstSubAccount(
+        user._id,
+        createdSubAccounts[0]._id,
+        session,
+      );
 
-    const createdSubAccounts = await Promise.all(subAccountPromises);
-    await this.userService.updateUserFirstSubAccount(
-      user._id,
-      createdSubAccounts[0]._id,
-    );
-    return { user, token };
+      await session.commitTransaction();
+      session.endSession();
+      return { user, token };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   }
-
-  // @Post('forget-password')
-  // forgotPassword(@Body() dto: ForgotPassDTO) {
-  //   return this.authService.forgotPassword(dto);
-  // }
-
-  // @Post('reset-password')
-  // resetPassword(@Body() dto: ResetPassDTO) {
-  //   return this.authService.resetPassword(dto);
-  // }
 }

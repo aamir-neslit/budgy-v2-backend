@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     // user.authCode = undefined;
-    user.password = undefined;
+    // user.password = undefined;
 
     return user;
   }

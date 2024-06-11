@@ -1,43 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateCatgoryDTO {
-  @ApiProperty({
-    example: 'iconName',
-    name: 'type',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   type: string;
 
-  @ApiProperty({
-    example: 'categoryName',
-    name: 'label',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   label: string;
 
-  @ApiProperty({
-    example: '62g26uye3276327864823',
-    description: 'should be user subAccount Id',
-    name: 'subAccountId',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @IsMongoId()
   subAccountId: string;
 
-  @ApiProperty({
-    example: '62g26uye3276327864823',
-    description: 'should be user subAccount Id',
-    name: 'subAccountId',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @IsMongoId()
   userId: string;
 }

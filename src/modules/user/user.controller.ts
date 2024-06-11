@@ -11,19 +11,4 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
-
-  // @Get('me')
-  // async getProfile(@GetUser() user: User) {
-  //   return await this.userService.findById(user._id);
-  // }
-
-  // @Patch('me')
-  // async updateProfile(@GetUser() user: User, @Body() dto: UpdateProfileDTO) {
-  //   return await this.userService.findByIdandUpdate(user._id, dto);
-  // }
-
-  // @Post('change-password')
-  // async changePassword(@GetUser() user: User, @Body() dto: ChangePassDTO) {
-  //   return await this.userService.changePassword(user._id, dto);
-  // }
 }

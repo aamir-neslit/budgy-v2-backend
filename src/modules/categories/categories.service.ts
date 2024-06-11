@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { Categories } from 'src/Models/categories.schema';
 import { CreateCatgoryDTO } from './dto';
 
@@ -10,9 +10,12 @@ export class CategoriesService {
     @InjectModel(Categories.name) private categoryModel: Model<Categories>,
   ) {}
 
-  async create(dto: CreateCatgoryDTO): Promise<Categories> {
+  async create(
+    dto: CreateCatgoryDTO,
+    session: ClientSession,
+  ): Promise<Categories> {
     const category = new this.categoryModel(dto);
-    return category.save();
+    return category.save({ session });
   }
 
   // async create(dto: SignUpDTO): Promise<User> {

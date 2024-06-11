@@ -4,55 +4,29 @@ import { IsEmail, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { User } from 'src/Models/user.schema';
 
 export class SignInDTO {
-  @ApiProperty({
-    example: 'alihamza.neslit@gmail.com',
-    name: 'email',
-  })
+  @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty({
-    example: 'Abc123',
-    name: 'password',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   password: string;
 }
 
-export class SignInResponseDTO {
-  @ApiProperty({ type: User })
-  @ValidateNested()
-  @Type(() => User)
-  user: User;
-
-  @IsString()
-  @IsNotEmpty()
-  token: string;
-}
-
 export class SignUpDTO {
-  @ApiProperty({
-    example: 'ali hamza',
-    name: 'name',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({
-    name: 'email',
-    example: 'alihamza.neslit@gmail.com',
-  })
+  @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty({
-    name: 'password',
-    example: 'Abc123',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   password: string;

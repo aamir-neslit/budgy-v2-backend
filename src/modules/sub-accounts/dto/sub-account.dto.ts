@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDateString,
+  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -8,60 +9,39 @@ import {
 } from 'class-validator';
 
 export class CreateSubAccountDTO {
-  @ApiProperty({
-    example: 'Home',
-    name: 'name',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({
-    example: 0,
-    name: 'balance',
-  })
+  @ApiProperty()
   @IsOptional()
   @IsNumber()
   balance?: number;
 
-  @ApiProperty({
-    example: 0,
-    name: 'recentExpense',
-  })
+  @ApiProperty()
   @IsOptional()
   @IsNumber()
   recentExpense?: number;
 
-  @ApiProperty({
-    example: 0,
-    name: 'recentIncome',
-  })
+  @ApiProperty()
   @IsOptional()
   @IsNumber()
   recentIncome?: number;
 
-  @ApiProperty({
-    example: 0,
-    name: 'totalExpense',
-  })
+  @ApiProperty()
   @IsOptional()
   @IsNumber()
   totalExpense?: number;
 
-  @ApiProperty({
-    example: 0,
-    name: 'totalIncome',
-  })
+  @ApiProperty()
   @IsOptional()
   @IsNumber()
   totalIncome?: number;
 
-  @ApiProperty({
-    example: '23434232423',
-    description: 'User main Account Id',
-    name: 'userId',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @IsMongoId()
   userId: string;
 }

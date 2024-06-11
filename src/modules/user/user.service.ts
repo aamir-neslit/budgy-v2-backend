@@ -4,10 +4,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { FilterQuery, PaginateModel, PaginateOptions } from 'mongoose';
+import {
+  ClientSession,
+  FilterQuery,
+  PaginateModel,
+  PaginateOptions,
+} from 'mongoose';
 import { generateRandomDigits } from 'src/common/utils/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../../Models/user.schema';
+import { User, UserDocument } from '../../Models/user.schema';
 import { ChangePassDTO, UpdateProfileDTO } from './dto';
 import { SignUpDTO } from '../auth/dto';
 import * as bcrypt from 'bcrypt';
@@ -19,17 +24,22 @@ export class UserService {
   async updateUserFirstSubAccount(
     userId: string,
     subAccountId: string,
+    session: ClientSession,
   ): Promise<User> {
-    return this.userModel
+    const user = await this.userModel
       .findByIdAndUpdate(
         userId,
         { selectedSubAccount: subAccountId },
-        { new: true },
+        { new: true, session }, // required true so that it will return updated document
       )
       .exec();
+    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+
+    user.password = undefined;
+    return user;
   }
 
-  async create(dto: SignUpDTO): Promise<User> {
+  async create(dto: SignUpDTO): Promise<UserDocument> {
     const userInDB = await this.userModel.findOne({ email: dto.email });
     if (userInDB) {
       throw new ConflictException('User already exists with this email');
@@ -43,7 +53,7 @@ export class UserService {
     return await this.userModel.paginate(query, paginateOptions);
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<UserDocument | null> {
     const user = await this.userModel.findOne({ email }).exec();
 
     if (user) return user;
@@ -57,69 +67,17 @@ export class UserService {
     return user;
   }
 
-  async findByIdandUpdate(
-    userId: string,
-    dto: UpdateProfileDTO,
-  ): Promise<User> {
-    const user = await this.userModel
-      .findByIdAndUpdate(userId, dto, { new: true })
-      .exec();
+  // async findByIdandUpdate(
+  //   userId: string,
+  //   dto: UpdateProfileDTO,
+  // ): Promise<User> {
+  //   const user = await this.userModel
+  //     .findByIdAndUpdate(userId, dto, { new: true }) // required true so that it will return updated document
+  //     .exec();
 
-    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+  //   if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
 
-    user.password = undefined;
-    return user;
-  }
-
-  async findAll(filters?: FilterQuery<User>): Promise<User[]> {
-    return await this.userModel.find(filters ? filters : {}).exec();
-  }
-
-  async forgotPassword(email: string): Promise<{ result: string }> {
-    const userInDB = await this.userModel.findOne({ email: email });
-    if (!userInDB)
-      throw new NotFoundException(`User with email ${email} not found`);
-
-    const OTPCode = generateRandomDigits(6);
-    // userInDB.authCode = OTPCode.toString();
-    await userInDB.save();
-
-    return {
-      result: 'Please check your email.',
-    };
-  }
-
-  async resetPassword(
-    email: string,
-    authCode: string,
-    newPassword: string,
-  ): Promise<{ result: string }> {
-    const user = await this.userModel.findOne({ email: email });
-
-    if (!user)
-      throw new NotFoundException(`User with email ${email} not found`);
-    // if (user.authCode !== authCode) throw new BadRequestException(`You have entered an invalid authcode`);
-
-    user.password = newPassword;
-    await user.save();
-
-    return {
-      result: 'Your account password has been reset.',
-    };
-  }
-
-  async changePassword(userId: string, dto: ChangePassDTO) {
-    const user = await this.userModel.findById(userId);
-    const isPassMatch = await bcrypt.compare(dto.oldPassword, user.password);
-    if (!isPassMatch) {
-      throw new BadRequestException('Your current password is not correct.');
-    }
-    user.password = dto.newPassword;
-    await user.save();
-
-    user.password = undefined;
-    // user.authCode = undefined;
-
-    return { result: 'Your password has been changed successfully.' };
-  }
+  //   user.password = undefined;
+  //   return user;
+  // }
 }

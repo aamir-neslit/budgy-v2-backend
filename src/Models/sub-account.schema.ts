@@ -4,7 +4,7 @@ import { BaseSchema } from 'src/common/schemas';
 
 @Schema()
 export class SubAccount extends BaseSchema {
-  @Prop({ default: null })
+  @Prop()
   name: string;
 
   @Prop({ default: 0 })
@@ -22,7 +22,7 @@ export class SubAccount extends BaseSchema {
   @Prop({ default: 0 })
   totalIncome: number;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', default: null, _id: false })
+  @Prop({ type: Types.ObjectId, ref: 'User', default: null })
   userId: Types.ObjectId;
 }
 

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { UserController } from './subAccount.controller';
-import { SubAccountService } from './subAccount.service';
+import { UserController } from './sub-account.controller';
+import { SubAccountService } from './sub-account.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { SubAccount, SubAccountSchema } from '../../Models/subAccount.schema';
+import { SubAccount, SubAccountSchema } from '../../Models/sub-account.schema';
 
 @Module({
   imports: [

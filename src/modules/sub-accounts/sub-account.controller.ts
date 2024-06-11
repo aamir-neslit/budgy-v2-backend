@@ -2,11 +2,11 @@ import { Controller, UseGuards } from '@nestjs/common';
 
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards';
-import { CategoriesService } from './categories.service';
+import { SubAccountService } from './sub-account.service';
 
 @UseGuards(JwtAuthGuard)
-@ApiTags('user') //it for swagger
-@Controller('user')
+@ApiTags('subAccount') //it for swagger
+@Controller('subAccount')
 export class UserController {
-  constructor(private categoriesService: CategoriesService) {}
+  constructor(private subAccountService: SubAccountService) {}
 }
