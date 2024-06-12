@@ -23,9 +23,9 @@ export class AuthService {
     private config: ConfigService,
     private jwt: JwtService,
     private userService: UserService,
-    private readonly subAccountService: SubAccountService,
-    private readonly categoriesService: CategoriesService,
-    @InjectConnection() private readonly connection: Connection,
+    private subAccountService: SubAccountService,
+    private categoriesService: CategoriesService,
+    @InjectConnection() private connection: Connection,
   ) {}
 
   async signToken(

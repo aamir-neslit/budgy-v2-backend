@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
-import { UserController } from './sub-account.controller';
-import { SubAccountService } from './sub-account.service';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SubAccount, SubAccountSchema } from '../../Models/sub-account.schema';
+import { SubAccountService } from './sub-account.service';
+import { SubAccountController } from './sub-account.controller';
+import { IncomeModule } from '../incomes/income.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { SubAccount, SubAccountSchema } from '../../Models/sub-account.schema';
       { name: SubAccount.name, schema: SubAccountSchema },
     ]),
   ],
+  controllers: [SubAccountController],
   providers: [SubAccountService],
   exports: [SubAccountService],
 })

@@ -62,6 +62,12 @@ export class UserService {
     if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
     return user;
   }
+  async validateUser(userId: string): Promise<void> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+  }
 
   // async findByIdandUpdate(
   //   userId: string,
