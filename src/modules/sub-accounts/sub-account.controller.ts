@@ -1,7 +1,7 @@
 import { Controller, UseGuards } from '@nestjs/common';
 
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards';
+import { JwtAuthGuard } from '../../common/guards';
 import { SubAccountService } from './sub-account.service';
 
 @UseGuards(JwtAuthGuard)

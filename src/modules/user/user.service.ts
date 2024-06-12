@@ -1,21 +1,17 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import {
   ClientSession,
   FilterQuery,
   PaginateModel,
   PaginateOptions,
 } from 'mongoose';
-import { generateRandomDigits } from 'src/common/utils/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../../Models/user.schema';
-import { ChangePassDTO, UpdateProfileDTO } from './dto';
 import { SignUpDTO } from '../auth/dto';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -39,14 +35,14 @@ export class UserService {
     return user;
   }
 
-  async create(dto: SignUpDTO): Promise<UserDocument> {
+  async create(dto: SignUpDTO, session?: ClientSession): Promise<UserDocument> {
     const userInDB = await this.userModel.findOne({ email: dto.email });
     if (userInDB) {
       throw new ConflictException('User already exists with this email');
     }
 
     const user = new this.userModel(dto);
-    return user.save();
+    return user.save({ session });
   }
 
   async find(query: FilterQuery<User>, paginateOptions?: PaginateOptions) {

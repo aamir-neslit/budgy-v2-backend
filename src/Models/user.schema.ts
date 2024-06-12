@@ -33,7 +33,7 @@ export class User extends BaseSchema {
   @Prop()
   notificationsEnables: boolean;
 
-  @Prop({ enum: Gender, default: Gender.MAN })
+  @Prop({ enum: Gender })
   @IsEnum(Gender)
   gender: Gender;
 
@@ -52,7 +52,6 @@ export const UserSchema = SchemaFactory.createForClass(User)
   .set('toJSON', {
     transform: function (doc, ret, opt) {
       delete ret['password'];
-      delete ret['authCode'];
       return ret;
     },
   })

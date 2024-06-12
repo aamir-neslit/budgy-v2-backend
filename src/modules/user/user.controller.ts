@@ -1,10 +1,7 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
-import { ChangePassDTO, UpdateProfileDTO } from './dto';
-import { UserService } from './user.service';
-import { JwtAuthGuard } from '../auth/guards';
-import { GetUser } from 'src/common/decorators';
-import { User } from '../../Models/user.schema';
+import { Controller, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../common/guards';
+import { UserService } from './user.service';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('user')

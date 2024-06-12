@@ -1,25 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsDateString,
+  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUrl,
 } from 'class-validator';
-
-export class ChangePassDTO {
-  @IsString()
-  @IsNotEmpty()
-  oldPassword: string;
-
-  @IsString()
-  @IsNotEmpty()
-  newPassword: string;
-}
 
 export class UpdateProfileDTO {
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @IsUrl()
   profilePicture: string;
 
   @IsString()
@@ -28,6 +20,7 @@ export class UpdateProfileDTO {
 
   @IsString()
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 
   @IsString()
