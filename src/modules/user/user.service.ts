@@ -77,6 +77,7 @@ export class UserService {
       throw new Error('User not found');
     }
   }
+
   async getUserStatistics(userId: string, subAccountId: string): Promise<any> {
     await this.validateUser(userId);
     await this.subAccountService.validateSubAccount(subAccountId);
@@ -92,48 +93,155 @@ export class UserService {
           localField: '_id',
           foreignField: 'userId',
           as: 'subAccounts',
-        },
-      },
-      { $unwind: '$subAccounts' },
-      { $match: { 'subAccounts._id': subAccountObjectId } },
-      {
-        $lookup: {
-          from: 'incomes',
-          let: { subAccountId: subAccountId },
           pipeline: [
-            { $match: { $expr: { $eq: ['$subAccountId', subAccountId] } } },
-            { $sort: { createdAt: -1 } },
-            { $limit: 3 },
             {
               $project: {
-                userId: 0,
-                subAccountId: 0,
-                categoryId: 0,
-                updatedAt: 0,
+                _id: 1,
+                name: 1,
+                createdAt: 1,
               },
             },
           ],
-          as: 'recentIncomes',
         },
       },
       {
         $lookup: {
-          from: 'expenses',
-          let: { subAccountId: subAccountId },
+          from: 'subaccounts',
+          let: { userId: userObjectId, subAccountId: subAccountObjectId },
           pipeline: [
-            { $match: { $expr: { $eq: ['$subAccountId', subAccountId] } } },
-            { $sort: { createdAt: -1 } },
-            { $limit: 3 },
             {
-              $project: {
-                userId: 0,
-                subAccountId: 0,
-                categoryId: 0,
-                updatedAt: 0,
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$userId', '$$userId'] },
+                    { $eq: ['$_id', '$$subAccountId'] },
+                  ],
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: 'incomes',
+                let: { subAccountIdStr: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: { $eq: ['$subAccountId', '$$subAccountIdStr'] },
+                    },
+                  },
+                  { $sort: { createdAt: -1 } },
+                  { $limit: 3 },
+                  {
+                    $lookup: {
+                      from: 'categories',
+                      let: { categoryIdStr: { $toObjectId: '$categoryId' } },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: {
+                              $eq: ['$_id', '$$categoryIdStr'],
+                            },
+                          },
+                        },
+                        {
+                          $project: {
+                            _id: 1,
+                            label: 1,
+                            type: 1,
+                          },
+                        },
+                      ],
+                      as: 'category',
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: '$category',
+                      preserveNullAndEmptyArrays: true,
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      amount: 1,
+                      createdAt: 1,
+                      'category.label': 1,
+                      'category.type': 1,
+                    },
+                  },
+                ],
+                as: 'recentIncomes',
+              },
+            },
+            {
+              $lookup: {
+                from: 'expenses',
+                let: { subAccountIdStr: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: { $eq: ['$subAccountId', '$$subAccountIdStr'] },
+                    },
+                  },
+                  { $sort: { createdAt: -1 } },
+                  { $limit: 3 },
+                  {
+                    $lookup: {
+                      from: 'categories',
+                      let: { categoryIdStr: { $toObjectId: '$categoryId' } },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: {
+                              $eq: ['$_id', '$$categoryIdStr'],
+                            },
+                          },
+                        },
+                        {
+                          $project: {
+                            _id: 1,
+                            label: 1,
+                            type: 1,
+                          },
+                        },
+                      ],
+                      as: 'category',
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: '$category',
+                      preserveNullAndEmptyArrays: true,
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      amount: 1,
+                      createdAt: 1,
+                      'category.label': 1,
+                      'category.type': 1,
+                    },
+                  },
+                ],
+                as: 'recentExpenses',
+              },
+            },
+            {
+              $addFields: {
+                recentIncomes: '$recentIncomes',
+                recentExpenses: '$recentExpenses',
               },
             },
           ],
-          as: 'recentExpenses',
+          as: 'selectedSubAccountDetails',
+        },
+      },
+      {
+        $addFields: {
+          selectedSubAccount: {
+            $arrayElemAt: ['$selectedSubAccountDetails', 0],
+          },
         },
       },
       {
@@ -141,13 +249,14 @@ export class UserService {
           _id: 1,
           email: 1,
           name: 1,
-          'subAccounts._id': 1,
-          'subAccounts.name': 1,
-          'subAccounts.balance': 1,
-          'subAccounts.totalIncome': 1,
-          'subAccounts.totalExpense': 1,
-          recentIncomes: 1,
-          recentExpenses: 1,
+          subAccounts: 1,
+          'selectedSubAccount._id': 1,
+          'selectedSubAccount.name': 1,
+          'selectedSubAccount.balance': 1,
+          'selectedSubAccount.totalIncome': 1,
+          'selectedSubAccount.totalExpense': 1,
+          'selectedSubAccount.recentIncomes': 1,
+          'selectedSubAccount.recentExpenses': 1,
         },
       },
     ];
