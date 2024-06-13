@@ -57,10 +57,7 @@ export class SubAccountService {
     return updatedSubAccount;
   }
 
-  async validateSubAccount(
-    subAccountId: string,
-    userId: string,
-  ): Promise<void> {
+  async validateSubAccount(subAccountId: string): Promise<void> {
     const subAccount = await this.findByIdAndUserId(subAccountId);
     if (!subAccount) {
       throw new Error('SubAccount not found');

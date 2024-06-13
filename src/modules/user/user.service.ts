@@ -58,14 +58,14 @@ export class UserService {
     return await this.userModel.paginate(query, paginateOptions);
   }
 
-  async findByEmail(email: string): Promise<UserDocument | null> {
+  async findByEmail(email: string): Promise<UserDocument> {
     const user = await this.userModel.findOne({ email }).exec();
 
     if (user) return user;
     else throw new NotFoundException(`User with email ${email} not found`);
   }
 
-  async findById(userId: string): Promise<User | null> {
+  async findById(userId: string): Promise<User> {
     const user = await this.userModel.findById(userId).exec();
 
     if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
@@ -79,7 +79,7 @@ export class UserService {
   }
   async getUserStatistics(userId: string, subAccountId: string): Promise<any> {
     await this.validateUser(userId);
-    await this.subAccountService.validateSubAccount(subAccountId, userId);
+    await this.subAccountService.validateSubAccount(subAccountId);
 
     const userObjectId = new Types.ObjectId(userId);
     const subAccountObjectId = new Types.ObjectId(subAccountId);

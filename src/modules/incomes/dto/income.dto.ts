@@ -1,11 +1,18 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsMongoId,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 
 export class CreateIncomeDTO {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  amount?: number;
+  @IsPositive()
+  amount: number;
 
   @ApiProperty()
   @IsString()
