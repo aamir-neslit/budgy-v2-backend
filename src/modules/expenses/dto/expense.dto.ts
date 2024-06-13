@@ -1,16 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsMongoId,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 
-export class CreateCatgoryDTO {
+export class CreateExpenseDTO {
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  @IsPositive()
+  amount: number;
+
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  type: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  label: string;
+  @IsMongoId()
+  userId: string;
 
   @ApiProperty()
   @IsString()
@@ -22,5 +30,5 @@ export class CreateCatgoryDTO {
   @IsString()
   @IsNotEmpty()
   @IsMongoId()
-  userId: string;
+  categoryId: string;
 }

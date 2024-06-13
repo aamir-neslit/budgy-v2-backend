@@ -1,19 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import {
-  IsBoolean,
-  IsDateString,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-} from 'class-validator';
-import { HydratedDocument, Types } from 'mongoose';
-import { BaseSchema } from 'src/common/schemas';
-import * as Paginate from 'mongoose-paginate-v2';
 import * as bcrypt from 'bcrypt';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsEnum } from 'class-validator';
+import { HydratedDocument, Types } from 'mongoose';
+import * as Paginate from 'mongoose-paginate-v2';
 import { Currency, Gender } from 'src/common/enums/user.enum';
+import { BaseSchema } from 'src/common/schemas';
 
 @Schema()
 export class User extends BaseSchema {
@@ -43,8 +34,8 @@ export class User extends BaseSchema {
   @Prop({ default: 0 })
   balance: number;
 
-  @Prop({ type: Types.ObjectId, ref: 'SubAccount', default: null })
-  selectedSubAccount: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Account', default: null })
+  selectedAccount: Types.ObjectId;
 }
 
 export type UserDocument = HydratedDocument<User>;

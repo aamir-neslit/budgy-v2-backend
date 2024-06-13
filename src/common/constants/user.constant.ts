@@ -1,4 +1,4 @@
-export const defaultSubAccounts = ['Home', 'Office'];
+export const defaultSubAccounts = ['Home', 'Office', 'General', 'Personal'];
 
 export const defaultCategories = [
   { type: 'medical', label: 'Medical' },

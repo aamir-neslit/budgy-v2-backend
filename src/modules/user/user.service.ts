@@ -19,13 +19,13 @@ export class UserService {
 
   async updateUserFirstSubAccount(
     userId: string,
-    subAccountId: string,
+    accountId: string,
     session: ClientSession,
   ): Promise<User> {
     const user = await this.userModel
       .findByIdAndUpdate(
         userId,
-        { selectedSubAccount: subAccountId },
+        { selectedAccount: accountId },
         { new: true, session }, // required true so that it will return updated document
       )
       .exec();
@@ -49,31 +49,23 @@ export class UserService {
     return await this.userModel.paginate(query, paginateOptions);
   }
 
-  async findByEmail(email: string): Promise<UserDocument | null> {
+  async findByEmail(email: string): Promise<UserDocument> {
     const user = await this.userModel.findOne({ email }).exec();
 
     if (user) return user;
     else throw new NotFoundException(`User with email ${email} not found`);
   }
 
-  async findById(userId: string): Promise<User | null> {
+  async findById(userId: string): Promise<User> {
     const user = await this.userModel.findById(userId).exec();
 
     if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
     return user;
   }
-
-  // async findByIdandUpdate(
-  //   userId: string,
-  //   dto: UpdateProfileDTO,
-  // ): Promise<User> {
-  //   const user = await this.userModel
-  //     .findByIdAndUpdate(userId, dto, { new: true }) // required true so that it will return updated document
-  //     .exec();
-
-  //   if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
-
-  //   user.password = undefined;
-  //   return user;
-  // }
+  async validateUser(userId: string): Promise<void> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+  }
 }
