@@ -7,15 +7,24 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   ClientSession,
   FilterQuery,
+  Model,
   PaginateModel,
   PaginateOptions,
+  PipelineStage,
+  Types,
 } from 'mongoose';
 import { User, UserDocument } from '../../Models/user.schema';
 import { SignUpDTO } from '../auth/dto';
+import { SubAccountService } from '../sub-accounts/sub-account.service';
+import { IncomeDocument } from 'src/Models/income.schema';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: PaginateModel<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: PaginateModel<User>,
+    @InjectModel('Income') private readonly incomeModel: Model<IncomeDocument>,
+    private subAccountService: SubAccountService,
+  ) {}
 
   async updateUserFirstSubAccount(
     userId: string,
@@ -68,18 +77,86 @@ export class UserService {
       throw new Error('User not found');
     }
   }
+  async getUserStatistics(userId: string, subAccountId: string): Promise<any> {
+    await this.validateUser(userId);
+    await this.subAccountService.validateSubAccount(subAccountId, userId);
 
-  // async findByIdandUpdate(
-  //   userId: string,
-  //   dto: UpdateProfileDTO,
-  // ): Promise<User> {
-  //   const user = await this.userModel
-  //     .findByIdAndUpdate(userId, dto, { new: true }) // required true so that it will return updated document
-  //     .exec();
+    const userObjectId = new Types.ObjectId(userId);
+    const subAccountObjectId = new Types.ObjectId(subAccountId);
 
-  //   if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+    const pipeline: PipelineStage[] = [
+      { $match: { _id: userObjectId } },
+      {
+        $lookup: {
+          from: 'subaccounts',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'subAccounts',
+        },
+      },
+      { $unwind: '$subAccounts' },
+      { $match: { 'subAccounts._id': subAccountObjectId } },
+      {
+        $lookup: {
+          from: 'incomes',
+          let: { subAccountId: subAccountId },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$subAccountId', subAccountId] } } },
+            { $sort: { createdAt: -1 } },
+            { $limit: 3 },
+            {
+              $project: {
+                userId: 0,
+                subAccountId: 0,
+                categoryId: 0,
+                updatedAt: 0,
+              },
+            },
+          ],
+          as: 'recentIncomes',
+        },
+      },
+      {
+        $lookup: {
+          from: 'expenses',
+          let: { subAccountId: subAccountId },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$subAccountId', subAccountId] } } },
+            { $sort: { createdAt: -1 } },
+            { $limit: 3 },
+            {
+              $project: {
+                userId: 0,
+                subAccountId: 0,
+                categoryId: 0,
+                updatedAt: 0,
+              },
+            },
+          ],
+          as: 'recentExpenses',
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          email: 1,
+          name: 1,
+          'subAccounts._id': 1,
+          'subAccounts.name': 1,
+          'subAccounts.balance': 1,
+          'subAccounts.totalIncome': 1,
+          'subAccounts.totalExpense': 1,
+          recentIncomes: 1,
+          recentExpenses: 1,
+        },
+      },
+    ];
 
-  //   user.password = undefined;
-  //   return user;
-  // }
+    console.log('Pipeline:', JSON.stringify(pipeline, null, 2));
+
+    const result = await this.userModel.aggregate(pipeline).exec();
+    console.log('Result:', result);
+
+    return result[0] || null;
+  }
 }
