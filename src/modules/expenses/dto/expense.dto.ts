@@ -24,7 +24,7 @@ export class CreateExpenseDTO {
   @IsString()
   @IsNotEmpty()
   @IsMongoId()
-  subAccountId: string;
+  accountId: string;
 
   @ApiProperty()
   @IsString()

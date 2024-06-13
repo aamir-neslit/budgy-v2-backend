@@ -10,8 +10,8 @@ export class Categories extends BaseSchema {
   @Prop()
   label: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'SubAccount', default: null })
-  subAccountId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Account', default: null })
+  accountId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'User', default: null })
   userId: Types.ObjectId;

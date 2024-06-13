@@ -12,10 +12,10 @@ export class Income extends BaseSchema {
 
   @Prop({
     type: Types.ObjectId,
-    ref: 'SubAccount',
+    ref: 'Account',
     required: true,
   })
-  subAccountId: Types.ObjectId;
+  accountId: Types.ObjectId;
 
   @Prop({
     type: Types.ObjectId,

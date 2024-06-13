@@ -3,7 +3,7 @@ import { HydratedDocument, Types } from 'mongoose';
 import { BaseSchema } from 'src/common/schemas';
 
 @Schema()
-export class SubAccount extends BaseSchema {
+export class Account extends BaseSchema {
   @Prop()
   name: string;
 
@@ -26,6 +26,5 @@ export class SubAccount extends BaseSchema {
   userId: Types.ObjectId;
 }
 
-// export type SubAccountDocument = HydratedDocument<SubAccount>;
-export type SubAccountDocument = SubAccount & Document;
-export const SubAccountSchema = SchemaFactory.createForClass(SubAccount);
+export type AccountDocument = Account & Document;
+export const AccountSchema = SchemaFactory.createForClass(Account);

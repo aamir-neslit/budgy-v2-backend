@@ -1,21 +1,21 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
-import { JWTDecodedUserI } from 'src/interfaces';
-import { UserDocument } from '../../Models/user.schema';
-import { UserService } from '../user/user.service';
-import { SignInDTO, SignUpDTO } from './dto';
-import { SubAccountService } from '../sub-accounts/sub-account.service';
-import { CategoriesService } from '../categories/categories.service';
-import { Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
-import { CreateSubAccountDTO } from '../sub-accounts/dto';
-import { CreateCatgoryDTO } from '../categories/dto';
+import * as bcrypt from 'bcrypt';
+import { Connection } from 'mongoose';
 import {
   defaultCategories,
   defaultSubAccounts,
 } from 'src/common/constants/user.constant';
+import { JWTDecodedUserI } from 'src/interfaces';
+import { UserDocument } from '../../Models/user.schema';
+import { AccountService } from '../accounts/account.service';
+import { CreateSubAccountDTO } from '../accounts/dto';
+import { CategoriesService } from '../categories/categories.service';
+import { CreateCatgoryDTO } from '../categories/dto';
+import { UserService } from '../user/user.service';
+import { SignInDTO, SignUpDTO } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +23,7 @@ export class AuthService {
     private config: ConfigService,
     private jwt: JwtService,
     private userService: UserService,
-    private subAccountService: SubAccountService,
+    private accountService: AccountService,
     private categoriesService: CategoriesService,
     @InjectConnection() private connection: Connection,
   ) {}
@@ -86,7 +86,7 @@ export class AuthService {
           name: accountName,
           userId: user._id,
         };
-        const subAccount = await this.subAccountService.create(
+        const account = await this.accountService.create(
           createSubAccountDto,
           session,
         );
@@ -95,14 +95,14 @@ export class AuthService {
           const createCategoryDto: CreateCatgoryDTO = {
             type: category.type,
             label: category.label,
-            subAccountId: subAccount._id,
+            accountId: account._id,
             userId: user._id,
           };
           return this.categoriesService.create(createCategoryDto, session);
         });
 
         await Promise.all(categoryPromises);
-        return subAccount;
+        return account;
       });
 
       const createdSubAccounts = await Promise.all(subAccountPromises);

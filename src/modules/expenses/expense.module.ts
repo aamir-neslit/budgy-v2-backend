@@ -4,13 +4,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Expense, ExpenseSchema } from 'src/Models/expense.schema';
 import { ExpenseController } from './expense.controller';
 import { ExpenseService } from './expense.service';
-import { SubAccountModule } from '../sub-accounts/sub-account.module';
+import { AccountModule } from '../accounts/account.module';
 import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Expense.name, schema: ExpenseSchema }]),
-    SubAccountModule,
+    AccountModule,
     UserModule,
   ],
   controllers: [ExpenseController],

@@ -16,7 +16,7 @@ export class CreateCatgoryDTO {
   @IsString()
   @IsNotEmpty()
   @IsMongoId()
-  subAccountId: string;
+  accountId: string;
 
   @ApiProperty()
   @IsString()

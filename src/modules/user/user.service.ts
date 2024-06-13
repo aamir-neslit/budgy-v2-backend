@@ -19,13 +19,13 @@ export class UserService {
 
   async updateUserFirstSubAccount(
     userId: string,
-    subAccountId: string,
+    accountId: string,
     session: ClientSession,
   ): Promise<User> {
     const user = await this.userModel
       .findByIdAndUpdate(
         userId,
-        { selectedSubAccount: subAccountId },
+        { selectedAccount: accountId },
         { new: true, session }, // required true so that it will return updated document
       )
       .exec();
