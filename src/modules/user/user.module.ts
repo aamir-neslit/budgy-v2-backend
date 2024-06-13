@@ -1,22 +1,20 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Expense, ExpenseSchema } from 'src/models/expense.schema';
+import { Income, IncomeSchema } from 'src/models/income.schema';
+import { User, UserSchema } from '../../models/user.schema';
+import { AccountModule } from '../accounts/account.module';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from '../../Models/user.schema';
-import { SubAccountModule } from '../sub-accounts/sub-account.module';
-import { AuthModule } from '../auth/auth.module';
-import { IncomeModule } from '../incomes/income.module';
-import { ExpenseModule } from '../expenses/expense.module';
-import { Income, IncomeSchema } from 'src/Models/income.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Income.name, schema: IncomeSchema },
+      { name: Expense.name, schema: ExpenseSchema },
     ]),
-    SubAccountModule,
-    // IncomeModule,
+    AccountModule,
   ],
   controllers: [UserController],
   providers: [UserService],

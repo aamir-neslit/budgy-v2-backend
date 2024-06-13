@@ -3,7 +3,7 @@ import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/common/decorators';
 import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
-import { User } from 'src/Models/user.schema';
+import { User } from 'src/models/user.schema';
 import { JwtAuthGuard } from '../../common/guards';
 import { CreateIncomeDTO } from './dto';
 import { IncomeService } from './income.service';

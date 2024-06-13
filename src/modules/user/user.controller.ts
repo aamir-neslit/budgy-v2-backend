@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../../common/guards';
 import { UserService } from './user.service';
 import { GetUser } from 'src/common/decorators';
 import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
+import { DateFilter } from 'src/common/enums/user.enum';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -13,10 +14,27 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Get('user-statistics')
-  async userStatistics(
+  async userSelectedAccountStatistics(
     @GetUser('id', MongoIdValidationPipe) userId: string,
-    @Query('subAccountId', MongoIdValidationPipe) subAccountId: string,
+    @Query('accountId', MongoIdValidationPipe) accountId: string,
   ) {
-    return await this.userService.getUserStatistics(userId, subAccountId);
+    await this.userService.updateUserSelectedAccount(userId, accountId);
+    return await this.userService.getUserSelectedAccountStatistics(
+      userId,
+      accountId,
+    );
+  }
+
+  @Get('user-income-expense-summary')
+  async userIncomeExpenseSummaryChart(
+    @GetUser('id', MongoIdValidationPipe) userId: string,
+    @Query('accountId', MongoIdValidationPipe) accountId: string,
+    @Query('filter') filter: DateFilter = DateFilter.TODAY,
+  ) {
+    return await this.userService.getUserIncomeExpenseSummaryChart(
+      userId,
+      accountId,
+      filter,
+    );
   }
 }

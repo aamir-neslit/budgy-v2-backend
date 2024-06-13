@@ -18,3 +18,10 @@ export enum Currency {
   EUR = 'EUR',
   USD = 'USD',
 }
+
+export enum DateFilter {
+  TODAY = 'today',
+  WEEK = 'week',
+  MONTH = 'month',
+  YEAR = 'year',
+}

@@ -24,7 +24,7 @@ export class CreateIncomeDTO {
   @IsString()
   @IsNotEmpty()
   @IsMongoId()
-  subAccountId: string;
+  accountId: string;
 
   @ApiProperty()
   @IsString()

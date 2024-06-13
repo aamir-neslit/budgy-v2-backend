@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ObjectIdInterceptor, ResultInterceptor } from './common/interceptors';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
-import { SubAccountModule } from './modules/sub-accounts/sub-account.module';
+import { AccountModule } from './modules/accounts/account.module';
 import { IncomeModule } from './modules/incomes/income.module';
 import { ExpenseModule } from './modules/expenses/expense.module';
 
@@ -15,7 +15,7 @@ import { ExpenseModule } from './modules/expenses/expense.module';
     MongooseModule.forRoot(process.env.DB_URI),
     AuthModule,
     UserModule,
-    SubAccountModule,
+    AccountModule,
     IncomeModule,
     ExpenseModule,
   ],

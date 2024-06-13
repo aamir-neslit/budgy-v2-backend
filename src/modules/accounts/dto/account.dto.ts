@@ -7,7 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CreateSubAccountDTO {
+export class CreateAccountDTO {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

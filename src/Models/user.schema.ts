@@ -34,8 +34,8 @@ export class User extends BaseSchema {
   @Prop({ default: 0 })
   balance: number;
 
-  @Prop({ type: Types.ObjectId, ref: 'SubAccount', default: null })
-  selectedSubAccount: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Account', default: null })
+  selectedAccount: Types.ObjectId;
 }
 
 export type UserDocument = HydratedDocument<User>;
