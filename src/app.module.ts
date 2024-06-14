@@ -8,6 +8,7 @@ import { UserModule } from './modules/user/user.module';
 import { AccountModule } from './modules/accounts/account.module';
 import { IncomeModule } from './modules/incomes/income.module';
 import { ExpenseModule } from './modules/expenses/expense.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ExpenseModule } from './modules/expenses/expense.module';
     AccountModule,
     IncomeModule,
     ExpenseModule,
+    CategoriesModule,
   ],
   providers: [
     {
