@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import {
+  IsDateString,
   IsMongoId,
   IsNotEmpty,
   IsNumber,
@@ -31,4 +32,18 @@ export class CreateExpenseDTO {
   @IsNotEmpty()
   @IsMongoId()
   categoryId: string;
+}
+
+export class GetUserExpensesDTO extends PickType(CreateExpenseDTO, [
+  'accountId',
+]) {
+  @ApiProperty()
+  @IsDateString()
+  @IsNotEmpty()
+  startDate: string;
+
+  @ApiProperty()
+  @IsDateString()
+  @IsNotEmpty()
+  endDate: string;
 }
