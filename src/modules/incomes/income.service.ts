@@ -5,6 +5,7 @@ import { Income, IncomeDocument } from 'src/models/income.schema';
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
 import { CreateIncomeDTO } from './dto';
+import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class IncomeService {
@@ -13,12 +14,15 @@ export class IncomeService {
     private incomeModel: PaginateModel<IncomeDocument>,
     private accountService: AccountService,
     private userService: UserService,
+    private categoriesService: CategoriesService,
     @InjectConnection() private connection: Connection,
   ) {}
   async create(createIncomeDTO: CreateIncomeDTO): Promise<Income> {
     const { accountId, userId, amount, categoryId } = createIncomeDTO;
     await this.userService.validateUser(userId);
     await this.accountService.validateAccount(accountId);
+    await this.categoriesService.validateCategoryId(categoryId);
+
     const session = await this.connection.startSession();
     session.startTransaction();
     try {

@@ -25,10 +25,4 @@ export class CreateCatgoryDTO {
   userId: string;
 }
 
-export class UpdateCategoryDTO extends PickType(CreateCatgoryDTO, ['label']) {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @IsMongoId()
-  categoryId: string;
-}
+export class UpdateCategoryDTO extends PickType(CreateCatgoryDTO, ['label']) {}

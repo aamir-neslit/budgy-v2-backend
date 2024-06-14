@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Account } from '../../models/account.schema';
 import { CreateAccountDTO } from './dto';
@@ -60,7 +60,7 @@ export class AccountService {
   async validateAccount(accountId: string): Promise<void> {
     const account = await this.findByIdAndUserId(accountId);
     if (!account) {
-      throw new Error('Account not found');
+      throw new NotFoundException('Account not found');
     }
   }
 }

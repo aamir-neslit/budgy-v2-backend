@@ -5,6 +5,7 @@ import { Expense } from 'src/models/expense.schema';
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
 import { CreateExpenseDTO } from './dto';
+import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class ExpenseService {
@@ -12,12 +13,15 @@ export class ExpenseService {
     @InjectModel(Expense.name) private expenseModel: PaginateModel<Expense>,
     private accountService: AccountService,
     private userService: UserService,
+    private categoriesService: CategoriesService,
     @InjectConnection() private connection: Connection,
   ) {}
   async create(createExpenseDTO: CreateExpenseDTO): Promise<Expense> {
     const { accountId, userId, amount, categoryId } = createExpenseDTO;
     await this.userService.validateUser(userId);
     await this.accountService.validateAccount(accountId);
+    await this.categoriesService.validateCategoryId(categoryId);
+
     const session = await this.connection.startSession();
     session.startTransaction();
     try {

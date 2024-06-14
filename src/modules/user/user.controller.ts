@@ -1,4 +1,10 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards';
 import { UserService } from './user.service';
@@ -29,7 +35,8 @@ export class UserController {
   async userIncomeExpenseSummaryChart(
     @GetUser('id', MongoIdValidationPipe) userId: string,
     @Query('accountId', MongoIdValidationPipe) accountId: string,
-    @Query('filter') filter: DateFilter = DateFilter.TODAY,
+    @Query('filter', new ValidationPipe({ transform: true }))
+    filter: DateFilter = DateFilter.TODAY,
   ) {
     return await this.userService.getUserIncomeExpenseSummaryChart(
       userId,

@@ -20,6 +20,9 @@ export class CategoriesService {
     session?: ClientSession,
   ): Promise<Categories> {
     const { userId, accountId } = createCatgoryDTO;
+    await this.userService.validateUser(userId);
+    await this.accountService.validateAccount(accountId);
+
     const category = new this.categoryModel({
       ...createCatgoryDTO,
       userId: new Types.ObjectId(userId),
@@ -27,7 +30,15 @@ export class CategoriesService {
     });
     return category.save({ session });
   }
+  async validateCategoryId(categoryId: string): Promise<void> {
+    const category = await this.categoryModel
+      .findOne({ _id: categoryId })
+      .exec();
 
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+  }
   async updateCategoryLabel(
     categoryId: string,
     label: string,

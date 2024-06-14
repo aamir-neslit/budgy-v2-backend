@@ -6,12 +6,14 @@ import { AccountModule } from '../accounts/account.module';
 import { IncomeController } from './income.controller';
 import { IncomeService } from './income.service';
 import { UserModule } from '../user/user.module';
+import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Income.name, schema: IncomeSchema }]),
     AccountModule,
     UserModule,
+    CategoriesModule,
   ],
   controllers: [IncomeController],
   providers: [IncomeService],

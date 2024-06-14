@@ -2,20 +2,19 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
-  Put,
   Query,
-  Request,
   UseGuards,
 } from '@nestjs/common';
 
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { GetUser } from 'src/common/decorators';
+import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
 import { JwtAuthGuard } from '../../common/guards';
+import { UserService } from '../user/user.service';
 import { CategoriesService } from './categories.service';
 import { CreateCatgoryDTO, UpdateCategoryDTO } from './dto';
-import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
-import { GetUser } from 'src/common/decorators';
-import { UserService } from '../user/user.service';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -32,12 +31,12 @@ export class UserController {
     return await this.categoriesService.create(createIncomeDTO);
   }
 
-  @Put('update-category')
+  @Patch('update-category')
   async updateCategoryLabel(
-    @Request() req,
+    @Query('categoryId', MongoIdValidationPipe) categoryId: string,
     @Body() updateCategoryDTO: UpdateCategoryDTO,
   ) {
-    const { categoryId, label } = updateCategoryDTO;
+    const { label } = updateCategoryDTO;
     return await this.categoriesService.updateCategoryLabel(categoryId, label);
   }
 
