@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Account } from '../../Models/account.schema';
-import { CreateSubAccountDTO } from './dto';
+import { Account } from '../../models/account.schema';
+import { CreateAccountDTO } from './dto';
 import { ClientSession, Model } from 'mongoose';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class AccountService {
     @InjectModel(Account.name) private accountModel: Model<Account>,
   ) {}
   async create(
-    dto: CreateSubAccountDTO,
+    dto: CreateAccountDTO,
     session?: ClientSession,
   ): Promise<Account> {
     const account = new this.accountModel(dto);

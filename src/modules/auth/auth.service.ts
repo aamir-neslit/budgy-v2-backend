@@ -9,9 +9,9 @@ import {
   defaultSubAccounts,
 } from 'src/common/constants/user.constant';
 import { JWTDecodedUserI } from 'src/interfaces';
-import { UserDocument } from '../../Models/user.schema';
+import { UserDocument } from '../../models/user.schema';
 import { AccountService } from '../accounts/account.service';
-import { CreateSubAccountDTO } from '../accounts/dto';
+import { CreateAccountDTO } from '../accounts/dto';
 import { CategoriesService } from '../categories/categories.service';
 import { CreateCatgoryDTO } from '../categories/dto';
 import { UserService } from '../user/user.service';
@@ -69,11 +69,6 @@ export class AuthService {
     return { user, token: token.access_token };
   }
 
-  // async signup(dto: SignUpDTO): Promise<{ user: UserDocument; token: string }> {
-  //   const user = await this.userService.create(dto);
-  //   const token = await this.signToken(user._id, user.email);
-  //   return { user, token: token.access_token };
-  // }
   async signup(dto: SignUpDTO) {
     const session = await this.connection.startSession();
     session.startTransaction();
@@ -82,7 +77,7 @@ export class AuthService {
       const token = await this.signToken(user._id, user.email);
 
       const subAccountPromises = defaultSubAccounts.map(async (accountName) => {
-        const createSubAccountDto: CreateSubAccountDTO = {
+        const createSubAccountDto: CreateAccountDTO = {
           name: accountName,
           userId: user._id,
         };
@@ -106,7 +101,7 @@ export class AuthService {
       });
 
       const createdSubAccounts = await Promise.all(subAccountPromises);
-      await this.userService.updateUserFirstSubAccount(
+      await this.userService.updateUserSelectedAccount(
         user._id,
         createdSubAccounts[0]._id,
         session,

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Income, IncomeSchema } from 'src/Models/income.schema';
+import { Income, IncomeSchema } from 'src/models/income.schema';
 import { AccountModule } from '../accounts/account.module';
 import { IncomeController } from './income.controller';
 import { IncomeService } from './income.service';
