@@ -69,11 +69,6 @@ export class AuthService {
     return { user, token: token.access_token };
   }
 
-  // async signup(dto: SignUpDTO): Promise<{ user: UserDocument; token: string }> {
-  //   const user = await this.userService.create(dto);
-  //   const token = await this.signToken(user._id, user.email);
-  //   return { user, token: token.access_token };
-  // }
   async signup(dto: SignUpDTO) {
     const session = await this.connection.startSession();
     session.startTransaction();

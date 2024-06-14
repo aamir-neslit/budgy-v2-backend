@@ -39,7 +39,7 @@ export class UserService {
     const user = await this.userModel
       .findByIdAndUpdate(
         userId,
-        { selectedAccount: accountId },
+        { selectedAccount: new Types.ObjectId(accountId) },
         { new: true, session }, // required true so that it will return updated document
       )
       .exec();
@@ -130,11 +130,11 @@ export class UserService {
             {
               $lookup: {
                 from: 'incomes',
-                let: { accountIdStr: { $toString: '$_id' } },
+                let: { accountId: '$_id' },
                 pipeline: [
                   {
                     $match: {
-                      $expr: { $eq: ['$accountId', '$$accountIdStr'] },
+                      $expr: { $eq: ['$accountId', '$$accountId'] },
                     },
                   },
                   { $sort: { createdAt: -1 } },
@@ -142,12 +142,12 @@ export class UserService {
                   {
                     $lookup: {
                       from: 'categories',
-                      let: { categoryIdStr: { $toObjectId: '$categoryId' } },
+                      let: { categoryId: '$categoryId' },
                       pipeline: [
                         {
                           $match: {
                             $expr: {
-                              $eq: ['$_id', '$$categoryIdStr'],
+                              $eq: ['$_id', '$$categoryId'],
                             },
                           },
                         },
@@ -184,11 +184,11 @@ export class UserService {
             {
               $lookup: {
                 from: 'expenses',
-                let: { accountIdStr: { $toString: '$_id' } },
+                let: { accountId: '$_id' },
                 pipeline: [
                   {
                     $match: {
-                      $expr: { $eq: ['$accountId', '$$accountIdStr'] },
+                      $expr: { $eq: ['$accountId', '$$accountId'] },
                     },
                   },
                   { $sort: { createdAt: -1 } },
@@ -196,12 +196,12 @@ export class UserService {
                   {
                     $lookup: {
                       from: 'categories',
-                      let: { categoryIdStr: { $toObjectId: '$categoryId' } },
+                      let: { categoryId: '$categoryId' },
                       pipeline: [
                         {
                           $match: {
                             $expr: {
-                              $eq: ['$_id', '$$categoryIdStr'],
+                              $eq: ['$_id', '$$categoryId'],
                             },
                           },
                         },
@@ -268,67 +268,126 @@ export class UserService {
         },
       },
     ];
-    const result = await this.userModel.aggregate(pipeline).exec();
+    const [result] = await this.userModel.aggregate(pipeline).exec();
 
-    return result[0] || null;
+    return result;
   }
 
   async getUserIncomeExpenseSummaryChart(
     userId: string,
     accountId: string,
     filter: DateFilter = DateFilter.TODAY,
-  ): Promise<any> {
+  ): Promise<User> {
     await this.validateUser(userId);
     await this.accountService.validateAccount(accountId);
+    const userObjectId = new Types.ObjectId(userId);
+    const accountObjectId = new Types.ObjectId(accountId);
 
     const startDate = calculateStartDate(filter);
     const now = new Date();
 
-    const incomes = await this.incomeModel
-      .aggregate([
-        {
-          $match: {
-            userId: userId,
-            accountId: accountId.toString(),
-            createdAt: { $gte: startDate, $lte: now },
-          },
+    const pipeline = [
+      {
+        $match: {
+          _id: userObjectId,
         },
-        {
-          $group: {
-            _id: null,
-            totalIncome: { $sum: '$amount' },
-          },
+      },
+      {
+        $lookup: {
+          from: 'accounts',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'accounts',
         },
-      ])
-      .exec();
+      },
+      {
+        $unwind: '$accounts',
+      },
+      {
+        $match: {
+          'accounts._id': accountObjectId,
+        },
+      },
+      {
+        $lookup: {
+          from: 'incomes',
+          let: { accountId: '$accounts._id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$accountId', '$$accountId'] },
+                    { $eq: ['$userId', userObjectId] },
+                    { $gte: ['$createdAt', startDate] },
+                    { $lte: ['$createdAt', now] },
+                  ],
+                },
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                totalIncome: { $sum: '$amount' },
+              },
+            },
+          ],
+          as: 'incomeSummary',
+        },
+      },
+      {
+        $lookup: {
+          from: 'expenses',
+          let: { accountId: '$accounts._id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$accountId', '$$accountId'] },
+                    { $eq: ['$userId', userObjectId] },
+                    { $gte: ['$createdAt', startDate] },
+                    { $lte: ['$createdAt', now] },
+                  ],
+                },
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                totalExpense: { $sum: '$amount' },
+              },
+            },
+          ],
+          as: 'expenseSummary',
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          email: 1,
+          name: 1,
+          'accountId._id': 1,
+          'accountId.name': 1,
+          totalIncome: { $arrayElemAt: ['$incomeSummary.totalIncome', 0] },
+          totalExpense: { $arrayElemAt: ['$expenseSummary.totalExpense', 0] },
+        },
+      },
+      {
+        $addFields: {
+          totalIncome: { $ifNull: ['$totalIncome', 0] },
+          totalExpense: { $ifNull: ['$totalExpense', 0] },
+        },
+      },
+      {
+        $addFields: {
+          balance: { $subtract: ['$totalIncome', '$totalExpense'] },
+        },
+      },
+    ];
 
-    const expenses = await this.expenseModel
-      .aggregate([
-        {
-          $match: {
-            userId: userId,
-            accountId: accountId.toString(),
-            createdAt: { $gte: startDate, $lte: now },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            totalExpense: { $sum: '$amount' },
-          },
-        },
-      ])
-      .exec();
+    const [result] = await this.userModel.aggregate(pipeline).exec();
 
-    const totalIncome = incomes.length > 0 ? incomes[0].totalIncome : 0;
-    const totalExpense = expenses.length > 0 ? expenses[0].totalExpense : 0;
-    const balance = calculateBalance(totalIncome, totalExpense);
-
-    return {
-      totalIncome,
-      totalExpense,
-      balance,
-      filter,
-    };
+    return result;
   }
 }

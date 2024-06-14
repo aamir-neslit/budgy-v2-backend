@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, PaginateModel } from 'mongoose';
+import { Connection, PaginateModel, Types } from 'mongoose';
 import { Expense } from 'src/models/expense.schema';
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
@@ -15,13 +15,18 @@ export class ExpenseService {
     @InjectConnection() private connection: Connection,
   ) {}
   async create(createExpenseDTO: CreateExpenseDTO): Promise<Expense> {
-    const { accountId, userId, amount } = createExpenseDTO;
+    const { accountId, userId, amount, categoryId } = createExpenseDTO;
     await this.userService.validateUser(userId);
     await this.accountService.validateAccount(accountId);
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
-      const newExpense = new this.expenseModel(createExpenseDTO);
+      const newExpense = new this.expenseModel({
+        ...createExpenseDTO,
+        userId: new Types.ObjectId(userId),
+        accountId: new Types.ObjectId(accountId),
+        categoryId: new Types.ObjectId(categoryId),
+      });
       await newExpense.save({ session });
 
       await this.accountService.updateAccountExpense(
