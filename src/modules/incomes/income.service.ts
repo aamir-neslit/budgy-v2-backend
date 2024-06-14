@@ -34,12 +34,7 @@ export class IncomeService {
       });
       await newIncome.save({ session });
 
-      await this.accountService.updateAccountIncome(
-        accountId,
-        userId,
-        amount,
-        session,
-      );
+      await this.accountService.updateAccountIncome(accountId, amount, session);
       await session.commitTransaction();
       session.endSession();
       return newIncome;
@@ -99,7 +94,7 @@ export class IncomeService {
       ])
       .exec();
 
-    if (!incomes || incomes.length === 0) {
+    if (!incomes || !incomes.length) {
       throw new NotFoundException(
         'No incomes found for the specified user, account, and date range',
       );

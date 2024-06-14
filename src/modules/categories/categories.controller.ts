@@ -14,7 +14,7 @@ import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
 import { JwtAuthGuard } from '../../common/guards';
 import { UserService } from '../user/user.service';
 import { CategoriesService } from './categories.service';
-import { CreateCatgoryDTO, UpdateCategoryDTO } from './dto';
+import { CreateCategoryDTO, UpdateCategoryDTO } from './dto';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -27,7 +27,7 @@ export class UserController {
   ) {}
 
   @Post('add-category')
-  async addNewCategory(@Body() createIncomeDTO: CreateCatgoryDTO) {
+  async addNewCategory(@Body() createIncomeDTO: CreateCategoryDTO) {
     return await this.categoriesService.create(createIncomeDTO);
   }
 

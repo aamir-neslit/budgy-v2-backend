@@ -22,7 +22,7 @@ import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
 export class ExpenseController {
   constructor(private expenseService: ExpenseService) {}
 
-  @Post('add-expense')
+  @Post()
   async addExpense(@Body() createExpenseDTO: CreateExpenseDTO) {
     return this.expenseService.create(createExpenseDTO);
   }

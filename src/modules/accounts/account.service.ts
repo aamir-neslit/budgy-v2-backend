@@ -10,10 +10,10 @@ export class AccountService {
     @InjectModel(Account.name) private accountModel: Model<Account>,
   ) {}
   async create(
-    dto: CreateAccountDTO,
+    createAccountDto: CreateAccountDTO,
     session?: ClientSession,
   ): Promise<Account> {
-    const account = new this.accountModel(dto);
+    const account = new this.accountModel(createAccountDto);
     return account.save({ session });
   }
 
@@ -23,7 +23,6 @@ export class AccountService {
 
   async updateAccountIncome(
     accountId: string,
-    userId: string,
     amount: number,
     session: ClientSession,
   ): Promise<Account> {
@@ -41,7 +40,6 @@ export class AccountService {
 
   async updateAccountExpense(
     accountId: string,
-    userId: string,
     amount: number,
     session: ClientSession,
   ): Promise<Account> {

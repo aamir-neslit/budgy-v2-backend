@@ -35,7 +35,6 @@ export class ExpenseService {
 
       await this.accountService.updateAccountExpense(
         accountId,
-        userId,
         amount,
         session,
       );
@@ -97,7 +96,7 @@ export class ExpenseService {
       ])
       .exec();
 
-    if (!expenses || expenses.length === 0) {
+    if (!expenses || !expenses.length) {
       throw new NotFoundException(
         'No expense found for the specified user, account, and date range',
       );

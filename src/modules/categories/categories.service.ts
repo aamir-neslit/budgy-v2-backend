@@ -2,8 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model, Types } from 'mongoose';
 import { Categories } from 'src/models/categories.schema';
-import { CreateCatgoryDTO } from './dto';
-import { User } from 'src/models/user.schema';
+import { CreateCategoryDTO } from './dto';
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
 
@@ -16,15 +15,15 @@ export class CategoriesService {
   ) {}
 
   async create(
-    createCatgoryDTO: CreateCatgoryDTO,
+    createCategoryDto: CreateCategoryDTO,
     session?: ClientSession,
   ): Promise<Categories> {
-    const { userId, accountId } = createCatgoryDTO;
+    const { userId, accountId } = createCategoryDto;
     await this.userService.validateUser(userId);
     await this.accountService.validateAccount(accountId);
 
     const category = new this.categoryModel({
-      ...createCatgoryDTO,
+      ...createCategoryDto,
       userId: new Types.ObjectId(userId),
       accountId: new Types.ObjectId(accountId),
     });

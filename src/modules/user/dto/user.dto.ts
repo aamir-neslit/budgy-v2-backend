@@ -15,11 +15,11 @@ export class UpdateProfileDTO {
   @IsString()
   @IsOptional()
   @IsUrl()
-  profilePicture: string;
+  profilePicture?: string;
 
   @IsString()
   @IsOptional()
-  name: string;
+  name?: string;
 
   @IsString()
   @IsNotEmpty()

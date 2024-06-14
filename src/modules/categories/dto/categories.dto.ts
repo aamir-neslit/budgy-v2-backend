@@ -1,7 +1,7 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateCatgoryDTO {
+export class CreateCategoryDTO {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -25,4 +25,4 @@ export class CreateCatgoryDTO {
   userId: string;
 }
 
-export class UpdateCategoryDTO extends PickType(CreateCatgoryDTO, ['label']) {}
+export class UpdateCategoryDTO extends PickType(CreateCategoryDTO, ['label']) {}

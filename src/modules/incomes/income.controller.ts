@@ -11,11 +11,9 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/common/decorators';
 import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
-import { User } from 'src/models/user.schema';
 import { JwtAuthGuard } from '../../common/guards';
 import { CreateIncomeDTO, GetUserIncomesDTO } from './dto';
 import { IncomeService } from './income.service';
-import { Connection } from 'mongoose';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -24,7 +22,7 @@ import { Connection } from 'mongoose';
 export class IncomeController {
   constructor(private incomeService: IncomeService) {}
 
-  @Post('add-income')
+  @Post()
   async addIncome(@Body() createIncomeDTO: CreateIncomeDTO) {
     return await this.incomeService.create(createIncomeDTO);
   }
