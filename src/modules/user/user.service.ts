@@ -15,13 +15,13 @@ import {
   PipelineStage,
   Types,
 } from 'mongoose';
-import { User, UserDocument } from '../../models/user.schema';
+import { User, UserDocument } from '../../schemas/user.schema';
 import { SignUpDTO } from '../auth/dto';
 
 import { DateFilter } from 'src/common/enums/user.enum';
 import { calculateStartDate } from 'src/common/utils';
-import { Expense } from 'src/models/expense.schema';
-import { Income } from 'src/models/income.schema';
+import { Expense } from 'src/schemas/expense.schema';
+import { Income } from 'src/schemas/income.schema';
 import { AccountService } from '../accounts/account.service';
 import { ChangePassDTO, UpdateProfileDTO } from './dto';
 

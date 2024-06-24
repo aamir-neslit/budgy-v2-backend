@@ -9,7 +9,7 @@ import {
   defaultSubAccounts,
 } from 'src/common/constants/user.constant';
 import { JWTDecodedUserI } from 'src/interfaces';
-import { UserDocument } from '../../models/user.schema';
+import { UserDocument } from '../../schemas/user.schema';
 import { AccountService } from '../accounts/account.service';
 import { CreateAccountDTO } from '../accounts/dto';
 import { CategoriesService } from '../categories/categories.service';

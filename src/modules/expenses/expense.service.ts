@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, PaginateModel, Types } from 'mongoose';
-import { Expense } from 'src/models/expense.schema';
+import { Expense } from 'src/schemas/expense.schema';
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
 import { CreateExpenseDTO } from './dto';

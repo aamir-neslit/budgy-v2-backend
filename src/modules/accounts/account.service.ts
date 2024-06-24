@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Account } from '../../models/account.schema';
+import { Account } from '../../schemas/account.schema';
 import { CreateAccountDTO } from './dto';
 import { ClientSession, Model } from 'mongoose';
 

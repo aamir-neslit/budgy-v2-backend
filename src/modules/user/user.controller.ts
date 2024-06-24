@@ -14,7 +14,7 @@ import { UserService } from './user.service';
 import { GetUser } from 'src/common/decorators';
 import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
 import { DateFilter, Gender } from 'src/common/enums/user.enum';
-import { User } from 'src/models/user.schema';
+import { User } from 'src/schemas/user.schema';
 import { ChangePassDTO, UpdateProfileDTO } from './dto';
 import { IsOptional } from 'class-validator';
 

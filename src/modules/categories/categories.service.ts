@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model, Types } from 'mongoose';
-import { Categories } from 'src/models/categories.schema';
+import { Categories } from 'src/schemas/categories.schema';
 import { CreateCategoryDTO } from './dto';
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
