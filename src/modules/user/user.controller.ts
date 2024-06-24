@@ -1,16 +1,22 @@
 import {
+  Body,
   Controller,
   Get,
+  Patch,
+  Post,
   Query,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards';
 import { UserService } from './user.service';
 import { GetUser } from 'src/common/decorators';
 import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
-import { DateFilter } from 'src/common/enums/user.enum';
+import { DateFilter, Gender } from 'src/common/enums/user.enum';
+import { User } from 'src/models/user.schema';
+import { ChangePassDTO, UpdateProfileDTO } from './dto';
+import { IsOptional } from 'class-validator';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -43,5 +49,21 @@ export class UserController {
       accountId,
       filter,
     );
+  }
+
+  @Post('change-password')
+  async changePassword(
+    @GetUser('id', MongoIdValidationPipe) userId: string,
+    @Body() dto: ChangePassDTO,
+  ) {
+    return await this.userService.changePassword(userId, dto);
+  }
+
+  @Patch('update-profile')
+  async updateProfile(
+    @GetUser('id', MongoIdValidationPipe) userId: string,
+    @Body() dto?: UpdateProfileDTO,
+  ) {
+    return await this.userService.findByIdandUpdate(userId, dto);
   }
 }

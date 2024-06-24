@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
 import {
   ClientSession,
   FilterQuery,
@@ -16,11 +18,12 @@ import {
 import { User, UserDocument } from '../../models/user.schema';
 import { SignUpDTO } from '../auth/dto';
 
-import { AccountService } from '../accounts/account.service';
 import { DateFilter } from 'src/common/enums/user.enum';
-import { calculateBalance, calculateStartDate } from 'src/common/utils';
-import { Income } from 'src/models/income.schema';
+import { calculateStartDate } from 'src/common/utils';
 import { Expense } from 'src/models/expense.schema';
+import { Income } from 'src/models/income.schema';
+import { AccountService } from '../accounts/account.service';
+import { ChangePassDTO, UpdateProfileDTO } from './dto';
 
 @Injectable()
 export class UserService {
@@ -389,5 +392,33 @@ export class UserService {
     const [result] = await this.userModel.aggregate(pipeline).exec();
 
     return result;
+  }
+
+  async changePassword(userId: string, dto: ChangePassDTO) {
+    const user = await this.userModel.findById(userId);
+
+    const isPassMatch = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!isPassMatch) {
+      throw new BadRequestException('Your current password is not correct.');
+    }
+    user.password = dto.newPassword;
+    await user.save();
+
+    user.password = undefined;
+
+    return { result: 'Your password has been changed successfully.' };
+  }
+
+  async findByIdandUpdate(
+    userId: string,
+    dto: UpdateProfileDTO,
+  ): Promise<User> {
+    const user = await this.userModel
+      .findByIdAndUpdate(userId, dto, { new: true })
+      .exec();
+
+    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+    user.password = undefined;
+    return user;
   }
 }

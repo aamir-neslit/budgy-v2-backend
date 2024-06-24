@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiQuery, PartialType } from '@nestjs/swagger';
 import {
   IsEmail,
   IsEnum,
@@ -8,7 +8,7 @@ import {
   IsString,
   IsUrl,
 } from 'class-validator';
-import { DateFilter } from 'src/common/enums/user.enum';
+import { DateFilter, Gender } from 'src/common/enums/user.enum';
 
 export class UpdateProfileDTO {
   @ApiProperty()
@@ -17,18 +17,22 @@ export class UpdateProfileDTO {
   @IsUrl()
   profilePicture?: string;
 
+  @ApiProperty()
   @IsString()
   @IsOptional()
   name?: string;
 
+  @ApiProperty()
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  email?: string;
 
-  @IsString()
+  @ApiProperty()
   @IsOptional()
-  password: string;
+  @IsEnum(Gender)
+  gender?: Gender;
 }
 
 export class GetUserIncomeExpenseSummaryChartDTO {
@@ -45,4 +49,16 @@ export class GetUserIncomeExpenseSummaryChartDTO {
   @IsString()
   @IsMongoId()
   accountId: string;
+}
+
+export class ChangePassDTO {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  oldPassword: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  newPassword: string;
 }
