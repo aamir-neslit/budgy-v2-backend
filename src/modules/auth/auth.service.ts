@@ -110,7 +110,10 @@ export class AuthService {
 
       await session.commitTransaction();
       session.endSession();
-      return { user, token };
+      return {
+        message: 'Account Created Successfully',
+        code: 200,
+      };
     } catch (error) {
       await session.abortTransaction();
       session.endSession();

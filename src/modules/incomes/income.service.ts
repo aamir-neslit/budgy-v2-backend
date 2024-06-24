@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, PaginateModel, Types } from 'mongoose';
-import { Income, IncomeDocument } from 'src/schemas/income.schema';
+
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
 import { CreateIncomeDTO } from './dto';
 import { CategoriesService } from '../categories/categories.service';
+import { Income, IncomeDocument } from 'src/schemas/income.schema';
 
 @Injectable()
 export class IncomeService {

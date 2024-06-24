@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Expense, ExpenseSchema } from 'src/schemas/expense.schema';
-import { Income, IncomeSchema } from 'src/schemas/income.schema';
+
 import { User, UserSchema } from '../../schemas/user.schema';
 import { AccountModule } from '../accounts/account.module';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { Income, IncomeSchema } from 'src/schemas/income.schema';
+import { Expense, ExpenseSchema } from 'src/schemas/expense.schema';
 
 @Module({
   imports: [

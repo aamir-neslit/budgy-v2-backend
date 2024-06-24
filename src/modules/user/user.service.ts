@@ -20,10 +20,11 @@ import { SignUpDTO } from '../auth/dto';
 
 import { DateFilter } from 'src/common/enums/user.enum';
 import { calculateStartDate } from 'src/common/utils';
-import { Expense } from 'src/schemas/expense.schema';
-import { Income } from 'src/schemas/income.schema';
+
 import { AccountService } from '../accounts/account.service';
 import { ChangePassDTO, UpdateProfileDTO } from './dto';
+import { Income } from 'src/schemas/income.schema';
+import { Expense } from 'src/schemas/expense.schema';
 
 @Injectable()
 export class UserService {
