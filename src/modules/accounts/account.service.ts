@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Account } from '../../models/account.schema';
+import { Account } from '../../schemas/account.schema';
 import { CreateAccountDTO } from './dto';
 import { ClientSession, Model } from 'mongoose';
 
@@ -10,10 +10,10 @@ export class AccountService {
     @InjectModel(Account.name) private accountModel: Model<Account>,
   ) {}
   async create(
-    dto: CreateAccountDTO,
+    createAccountDto: CreateAccountDTO,
     session?: ClientSession,
   ): Promise<Account> {
-    const account = new this.accountModel(dto);
+    const account = new this.accountModel(createAccountDto);
     return account.save({ session });
   }
 
@@ -23,7 +23,6 @@ export class AccountService {
 
   async updateAccountIncome(
     accountId: string,
-    userId: string,
     amount: number,
     session: ClientSession,
   ): Promise<Account> {
@@ -41,7 +40,6 @@ export class AccountService {
 
   async updateAccountExpense(
     accountId: string,
-    userId: string,
     amount: number,
     session: ClientSession,
   ): Promise<Account> {
@@ -60,7 +58,7 @@ export class AccountService {
   async validateAccount(accountId: string): Promise<void> {
     const account = await this.findByIdAndUserId(accountId);
     if (!account) {
-      throw new Error('Account not found');
+      throw new NotFoundException('Account not found');
     }
   }
 }

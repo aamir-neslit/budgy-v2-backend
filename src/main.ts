@@ -20,7 +20,10 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('budgy/api-doc', app, document);
   await app.listen(process.env.PORT);
+  console.log(
+    `Application is running on: ${await app.getUrl()}/budgy/api \n Swagger Document : http://[::1]:8000/budgy/api-doc`,
+  );
 }
 bootstrap();

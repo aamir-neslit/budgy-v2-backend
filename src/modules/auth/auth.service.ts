@@ -9,11 +9,11 @@ import {
   defaultSubAccounts,
 } from 'src/common/constants/user.constant';
 import { JWTDecodedUserI } from 'src/interfaces';
-import { UserDocument } from '../../models/user.schema';
+import { UserDocument } from '../../schemas/user.schema';
 import { AccountService } from '../accounts/account.service';
 import { CreateAccountDTO } from '../accounts/dto';
 import { CategoriesService } from '../categories/categories.service';
-import { CreateCatgoryDTO } from '../categories/dto';
+import { CreateCategoryDTO } from '../categories/dto';
 import { UserService } from '../user/user.service';
 import { SignInDTO, SignUpDTO } from './dto';
 
@@ -61,6 +61,7 @@ export class AuthService {
 
   async signin(dto: SignInDTO): Promise<{ user: UserDocument; token: string }> {
     const user = await this.userService.findByEmail(dto.email);
+
     const isMatch = await bcrypt.compare(dto.password, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Either email or password is invalid');
@@ -87,7 +88,7 @@ export class AuthService {
         );
 
         const categoryPromises = defaultCategories.map(async (category) => {
-          const createCategoryDto: CreateCatgoryDTO = {
+          const createCategoryDto: CreateCategoryDTO = {
             type: category.type,
             label: category.label,
             accountId: account._id,

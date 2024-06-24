@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, PaginateModel, Types } from 'mongoose';
-import { Expense } from 'src/models/expense.schema';
+import { Expense } from 'src/schemas/expense.schema';
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
 import { CreateExpenseDTO } from './dto';
+import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class ExpenseService {
@@ -12,12 +13,15 @@ export class ExpenseService {
     @InjectModel(Expense.name) private expenseModel: PaginateModel<Expense>,
     private accountService: AccountService,
     private userService: UserService,
+    private categoriesService: CategoriesService,
     @InjectConnection() private connection: Connection,
   ) {}
   async create(createExpenseDTO: CreateExpenseDTO): Promise<Expense> {
     const { accountId, userId, amount, categoryId } = createExpenseDTO;
     await this.userService.validateUser(userId);
     await this.accountService.validateAccount(accountId);
+    await this.categoriesService.validateCategoryId(categoryId);
+
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
@@ -31,7 +35,6 @@ export class ExpenseService {
 
       await this.accountService.updateAccountExpense(
         accountId,
-        userId,
         amount,
         session,
       );
@@ -44,10 +47,61 @@ export class ExpenseService {
       throw error;
     }
   }
-  async getExpense(userId: string, accountId: string): Promise<Expense[]> {
-    return this.expenseModel
-      .find({ userId, accountId })
-      .sort({ createdAt: -1 })
+  async getExpensesBasedOnDuration(
+    userId: string,
+    accountId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<Expense[]> {
+    await this.userService.validateUser(userId);
+    await this.accountService.validateAccount(accountId);
+
+    const userObjectId = new Types.ObjectId(userId);
+    const accountObjectId = new Types.ObjectId(accountId);
+
+    const start = new Date(startDate.toISOString().split('T')[0]);
+    const end = new Date(endDate.toISOString().split('T')[0]);
+
+    const expenses = await this.expenseModel
+      .aggregate([
+        {
+          $match: {
+            userId: userObjectId,
+            accountId: accountObjectId,
+            createdAt: {
+              $gte: start,
+              $lt: new Date(end.setDate(end.getDate() + 1)),
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'categories',
+            localField: 'categoryId',
+            foreignField: '_id',
+            as: 'category',
+          },
+        },
+        { $unwind: '$category' },
+        {
+          $project: {
+            _id: 1,
+            amount: 1,
+            createdAt: 1,
+            'category._id': 1,
+            'category.label': 1,
+            'category.type': 1,
+          },
+        },
+      ])
       .exec();
+
+    if (!expenses || !expenses.length) {
+      throw new NotFoundException(
+        'No expense found for the specified user, account, and date range',
+      );
+    }
+
+    return expenses;
   }
 }

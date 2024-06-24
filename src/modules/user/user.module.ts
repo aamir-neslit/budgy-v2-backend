@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Expense, ExpenseSchema } from 'src/models/expense.schema';
-import { Income, IncomeSchema } from 'src/models/income.schema';
-import { User, UserSchema } from '../../models/user.schema';
+import { Expense, ExpenseSchema } from 'src/schemas/expense.schema';
+import { Income, IncomeSchema } from 'src/schemas/income.schema';
+import { User, UserSchema } from '../../schemas/user.schema';
 import { AccountModule } from '../accounts/account.module';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';

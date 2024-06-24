@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { DateFilter } from '../enums/user.enum';
 
 export const generateRandomDigits = (n: number) => {
@@ -36,7 +37,9 @@ export const calculateStartDate = (filter: DateFilter): Date => {
       );
       break;
     default:
-      throw new Error('Invalid filter');
+      throw new NotFoundException(
+        'Invalid filter, Enum should be day, week, month , year ',
+      );
   }
 
   return startDate;
