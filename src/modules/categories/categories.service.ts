@@ -19,8 +19,6 @@ export class CategoriesService {
     session?: ClientSession,
   ): Promise<Categories> {
     const { userId, accountId } = createCategoryDto;
-    await this.userService.validateUser(userId);
-    await this.accountService.validateAccount(accountId);
 
     const category = new this.categoryModel({
       ...createCategoryDto,
