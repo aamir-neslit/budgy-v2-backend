@@ -66,7 +66,7 @@ export class UserController {
     return await this.userService.findByIdandUpdate(userId, dto);
   }
 
-  @Delete('delete-user-profile')
+  @Delete('delete-profile')
   async deleteUserProfile(
     @GetUser('id', MongoIdValidationPipe) userId: string,
     @Body() dto: DeleteUserDTO,
