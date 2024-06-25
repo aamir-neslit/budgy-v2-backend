@@ -1,18 +1,26 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, PaginateModel, Types } from 'mongoose';
-import { Expense } from 'src/schemas/expense.schema';
+import { ClientSession, Connection, PaginateModel, Types } from 'mongoose';
+
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
 import { CreateExpenseDTO } from './dto';
 import { CategoriesService } from '../categories/categories.service';
+import { Expense } from 'src/schemas/expense.schema';
 
 @Injectable()
 export class ExpenseService {
   constructor(
     @InjectModel(Expense.name) private expenseModel: PaginateModel<Expense>,
     private accountService: AccountService,
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
+    @Inject(forwardRef(() => CategoriesService))
     private categoriesService: CategoriesService,
     @InjectConnection() private connection: Connection,
   ) {}
@@ -103,5 +111,11 @@ export class ExpenseService {
     }
 
     return expenses;
+  }
+  async deleteExpensesByUserId(
+    userId: string,
+    session: ClientSession,
+  ): Promise<void> {
+    await this.expenseModel.deleteMany({ userId }, { session }).exec();
   }
 }

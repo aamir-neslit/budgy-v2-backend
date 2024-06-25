@@ -1,13 +1,16 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import {
   ClientSession,
+  Connection,
   FilterQuery,
   Model,
   PaginateModel,
@@ -17,21 +20,30 @@ import {
 } from 'mongoose';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { SignUpDTO } from '../auth/dto';
-
 import { DateFilter } from 'src/common/enums/user.enum';
 import { calculateStartDate } from 'src/common/utils';
-import { Expense } from 'src/schemas/expense.schema';
-import { Income } from 'src/schemas/income.schema';
 import { AccountService } from '../accounts/account.service';
+import { IncomeService } from '../incomes/income.service';
 import { ChangePassDTO, UpdateProfileDTO } from './dto';
+import { ExpenseService } from '../expenses/expense.service';
+import { CategoriesService } from '../categories/categories.service';
+import { AccountDeletionReasons } from 'src/schemas/account-deletion-reason.schema';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: PaginateModel<User>,
-    @InjectModel(Income.name) private incomeModel: Model<Income>,
-    @InjectModel(Expense.name) private expenseModel: Model<Expense>,
+    @InjectModel(AccountDeletionReasons.name)
+    private accountDeletionReasonsModel: Model<AccountDeletionReasons>,
+
     private accountService: AccountService,
+    private incomeService: IncomeService,
+    private expenseService: ExpenseService,
+
+    @Inject(forwardRef(() => CategoriesService))
+    private categoryService: CategoriesService,
+
+    @InjectConnection() private connection: Connection,
   ) {}
 
   async updateUserSelectedAccount(
@@ -420,5 +432,71 @@ export class UserService {
     if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
     user.password = undefined;
     return user;
+  }
+  async deleteUserProfile(
+    userId: string,
+    reason: string,
+  ): Promise<{ message: string }> {
+    await this.validateUser(userId);
+
+    const user = await this.findById(userId);
+
+    const session = await this.connection.startSession();
+    session.startTransaction();
+    try {
+      const deletionReason = new this.accountDeletionReasonsModel({
+        reason,
+        email: user.email,
+        name: user.name,
+      });
+      await deletionReason.save({ session });
+
+      await this.incomeService.deleteIncomesByUserId(userId, session);
+
+      await this.expenseService.deleteExpensesByUserId(userId, session);
+
+      await this.categoryService.deleteCategoriesByUserId(userId, session);
+
+      await this.accountService.deleteAccountsByUserId(userId, session);
+      await this.userModel.findByIdAndDelete(userId, { session }).exec();
+
+      await session.commitTransaction();
+      return {
+        message: 'User Profile has been deleted',
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  async deleteUserAccountsData(userId: string): Promise<{ message: string }> {
+    await this.validateUser(userId);
+
+    const user = await this.findById(userId);
+
+    const session = await this.connection.startSession();
+    session.startTransaction();
+    try {
+      await this.incomeService.deleteIncomesByUserId(userId, session);
+
+      await this.expenseService.deleteExpensesByUserId(userId, session);
+
+      await this.categoryService.deleteCategoriesByUserId(userId, session);
+
+      await this.accountService.deleteAccountsByUserId(userId, session);
+
+      await session.commitTransaction();
+      return {
+        message: 'User data and all linked records deleted successfully',
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 }

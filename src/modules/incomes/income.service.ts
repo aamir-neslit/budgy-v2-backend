@@ -1,11 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, PaginateModel, Types } from 'mongoose';
+import { ClientSession, Connection, PaginateModel, Types } from 'mongoose';
+
 import { Income, IncomeDocument } from 'src/schemas/income.schema';
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
 import { CreateIncomeDTO } from './dto';
-import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class IncomeService {
@@ -13,15 +18,15 @@ export class IncomeService {
     @InjectModel(Income.name)
     private incomeModel: PaginateModel<IncomeDocument>,
     private accountService: AccountService,
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
-    private categoriesService: CategoriesService,
+
     @InjectConnection() private connection: Connection,
   ) {}
   async create(createIncomeDTO: CreateIncomeDTO): Promise<Income> {
     const { accountId, userId, amount, categoryId } = createIncomeDTO;
     await this.userService.validateUser(userId);
     await this.accountService.validateAccount(accountId);
-    await this.categoriesService.validateCategoryId(categoryId);
 
     const session = await this.connection.startSession();
     session.startTransaction();
@@ -101,5 +106,12 @@ export class IncomeService {
     }
 
     return incomes;
+  }
+
+  async deleteIncomesByUserId(
+    userId: string,
+    session: ClientSession,
+  ): Promise<void> {
+    await this.incomeModel.deleteMany({ userId }, { session }).exec();
   }
 }

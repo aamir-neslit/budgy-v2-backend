@@ -52,13 +52,20 @@ export class GetUserIncomeExpenseSummaryChartDTO {
 }
 
 export class ChangePassDTO {
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
   oldPassword: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
   newPassword: string;
+}
+
+export class DeleteUserDTO {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  reason?: string;
 }

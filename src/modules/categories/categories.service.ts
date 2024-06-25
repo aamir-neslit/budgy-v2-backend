@@ -1,16 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model, Types } from 'mongoose';
-import { Categories } from 'src/schemas/categories.schema';
+
 import { CreateCategoryDTO } from './dto';
 import { AccountService } from '../accounts/account.service';
 import { UserService } from '../user/user.service';
+import { Categories } from 'src/schemas/categories.schema';
 
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectModel(Categories.name) private categoryModel: Model<Categories>,
     private accountService: AccountService,
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
   ) {}
 
@@ -75,5 +82,11 @@ export class CategoriesService {
     }
 
     return categories;
+  }
+  async deleteCategoriesByUserId(
+    userId: string,
+    session: ClientSession,
+  ): Promise<void> {
+    await this.categoryModel.deleteMany({ userId }, { session }).exec();
   }
 }
