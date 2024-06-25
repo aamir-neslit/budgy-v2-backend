@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { IsEmail } from 'class-validator';
 import { Types } from 'mongoose';
 import { BaseSchema } from 'src/common/schemas';
 
@@ -7,8 +8,12 @@ export class AccountDeletionReasons extends BaseSchema {
   @Prop()
   reason: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', default: null })
-  userId: Types.ObjectId;
+  @Prop()
+  @IsEmail()
+  email: string;
+
+  @Prop()
+  name: string;
 }
 
 export type AccountDeletionReasonsDocument = AccountDeletionReasons & Document;

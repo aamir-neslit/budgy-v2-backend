@@ -6,7 +6,7 @@ import { ObjectIdInterceptor, ResultInterceptor } from './common/interceptors';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { AccountModule } from './modules/accounts/account.module';
-import { IncomeModule } from './modules/incomes/income.module';
+import { InComeModule } from './modules/incomes/income.module';
 import { ExpenseModule } from './modules/expenses/expense.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 
@@ -17,7 +17,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
     AuthModule,
     UserModule,
     AccountModule,
-    IncomeModule,
+    InComeModule,
     ExpenseModule,
     CategoriesModule,
   ],

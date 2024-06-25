@@ -1,23 +1,20 @@
-import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { Income, IncomeSchema } from 'src/schemas/income.schema';
 import { AccountModule } from '../accounts/account.module';
+import { UserModule } from '../user/user.module';
 import { IncomeController } from './income.controller';
 import { IncomeService } from './income.service';
-import { UserModule } from '../user/user.module';
-import { CategoriesModule } from '../categories/categories.module';
-import { Income, IncomeSchema } from 'src/schemas/income.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Income.name, schema: IncomeSchema }]),
+    forwardRef(() => UserModule),
     AccountModule,
-    UserModule,
-    CategoriesModule,
   ],
   controllers: [IncomeController],
   providers: [IncomeService],
   exports: [IncomeService],
 })
-export class IncomeModule {}
+export class InComeModule {}

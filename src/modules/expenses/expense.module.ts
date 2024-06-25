@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { ExpenseController } from './expense.controller';
@@ -11,9 +11,9 @@ import { Expense, ExpenseSchema } from 'src/schemas/expense.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Expense.name, schema: ExpenseSchema }]),
-    AccountModule,
-    UserModule,
+    forwardRef(() => UserModule),
     CategoriesModule,
+    AccountModule,
   ],
   controllers: [ExpenseController],
   providers: [ExpenseService],

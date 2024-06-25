@@ -62,3 +62,10 @@ export class ChangePassDTO {
   @ApiProperty()
   newPassword: string;
 }
+
+export class DeleteUserDTO {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  reason?: string;
+}

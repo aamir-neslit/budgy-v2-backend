@@ -61,4 +61,10 @@ export class AccountService {
       throw new NotFoundException('Account not found');
     }
   }
+  async deleteAccountsByUserId(
+    userId: string,
+    session: ClientSession,
+  ): Promise<void> {
+    await this.accountModel.deleteMany({ userId }, { session }).exec();
+  }
 }

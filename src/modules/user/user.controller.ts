@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Patch,
   Post,
@@ -8,15 +9,13 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards';
-import { UserService } from './user.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/common/decorators';
+import { DateFilter } from 'src/common/enums/user.enum';
 import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
-import { DateFilter, Gender } from 'src/common/enums/user.enum';
-import { User } from 'src/schemas/user.schema';
-import { ChangePassDTO, UpdateProfileDTO } from './dto';
-import { IsOptional } from 'class-validator';
+import { JwtAuthGuard } from '../../common/guards';
+import { ChangePassDTO, DeleteUserDTO, UpdateProfileDTO } from './dto';
+import { UserService } from './user.service';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -65,5 +64,21 @@ export class UserController {
     @Body() dto?: UpdateProfileDTO,
   ) {
     return await this.userService.findByIdandUpdate(userId, dto);
+  }
+
+  @Delete('delete-user-profile')
+  async deleteUserProfile(
+    @GetUser('id', MongoIdValidationPipe) userId: string,
+    @Body() dto: DeleteUserDTO,
+  ) {
+    const { reason } = dto;
+    return await this.userService.deleteUserProfile(userId, reason);
+  }
+
+  @Delete('delete-user-account-data')
+  async deleteUserAccountsData(
+    @GetUser('id', MongoIdValidationPipe) userId: string,
+  ) {
+    return await this.userService.deleteUserAccountsData(userId);
   }
 }

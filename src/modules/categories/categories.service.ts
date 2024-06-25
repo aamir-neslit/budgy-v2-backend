@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model, Types } from 'mongoose';
 
@@ -12,6 +17,7 @@ export class CategoriesService {
   constructor(
     @InjectModel(Categories.name) private categoryModel: Model<Categories>,
     private accountService: AccountService,
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
   ) {}
 
@@ -76,5 +82,11 @@ export class CategoriesService {
     }
 
     return categories;
+  }
+  async deleteCategoriesByUserId(
+    userId: string,
+    session: ClientSession,
+  ): Promise<void> {
+    await this.categoryModel.deleteMany({ userId }, { session }).exec();
   }
 }

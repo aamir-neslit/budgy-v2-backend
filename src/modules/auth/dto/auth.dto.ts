@@ -1,7 +1,5 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { User } from 'src/schemas/user.schema';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class SignInDTO {
   @ApiProperty()
