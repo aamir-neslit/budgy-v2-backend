@@ -4,8 +4,8 @@ export enum ParticipantType {
 }
 
 export enum Gender {
-  MAN = 'Man',
-  WOMAN = 'Woman',
+  MALE = 'Male',
+  FEMALE = 'Female',
 }
 export enum Currency {
   PKR = 'PKR',
