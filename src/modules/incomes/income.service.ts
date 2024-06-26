@@ -23,7 +23,7 @@ export class IncomeService {
 
     @InjectConnection() private connection: Connection,
   ) {}
-  async create(createIncomeDTO: CreateIncomeDTO): Promise<Income> {
+  async create(createIncomeDTO: CreateIncomeDTO): Promise<any> {
     const { accountId, userId, amount, categoryId } = createIncomeDTO;
     await this.userService.validateUser(userId);
     await this.accountService.validateAccount(accountId);
@@ -42,7 +42,19 @@ export class IncomeService {
       await this.accountService.updateAccountIncome(accountId, amount, session);
       await session.commitTransaction();
       session.endSession();
-      return newIncome;
+
+      const populatedIncome = await this.incomeModel
+        .findById(newIncome._id)
+        .populate('categoryId', 'type label')
+        .exec();
+
+      const response = {
+        _id: populatedIncome._id,
+        amount: populatedIncome.amount,
+        createdAt: populatedIncome.createdAt,
+        category: populatedIncome.categoryId,
+      };
+      return response;
     } catch (error) {
       await session.abortTransaction();
       session.endSession();

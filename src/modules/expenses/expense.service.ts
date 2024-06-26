@@ -16,7 +16,7 @@ import { Expense } from 'src/schemas/expense.schema';
 @Injectable()
 export class ExpenseService {
   constructor(
-    @InjectModel(Expense.name) private expenseModel: PaginateModel<Expense>,
+    @InjectModel(Expense.name) private expenseModel: PaginateModel<any>,
     private accountService: AccountService,
     @Inject(forwardRef(() => UserService))
     private userService: UserService,
@@ -24,7 +24,7 @@ export class ExpenseService {
     private categoriesService: CategoriesService,
     @InjectConnection() private connection: Connection,
   ) {}
-  async create(createExpenseDTO: CreateExpenseDTO): Promise<Expense> {
+  async create(createExpenseDTO: CreateExpenseDTO): Promise<any> {
     const { accountId, userId, amount, categoryId } = createExpenseDTO;
     await this.userService.validateUser(userId);
     await this.accountService.validateAccount(accountId);
@@ -48,7 +48,22 @@ export class ExpenseService {
       );
       await session.commitTransaction();
       session.endSession();
-      return newExpense;
+      const populatedExpense = await this.expenseModel
+        .findById(newExpense._id)
+        .populate('categoryId', 'type label')
+        .exec();
+
+      const response = {
+        _id: populatedExpense._id,
+        amount: populatedExpense.amount,
+        createdAt: populatedExpense.createdAt,
+        category: {
+          _id: populatedExpense.categoryId._id,
+          type: populatedExpense.categoryId.type,
+          label: populatedExpense.categoryId.label,
+        },
+      };
+      return response;
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
