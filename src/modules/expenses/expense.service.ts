@@ -128,9 +128,10 @@ export class ExpenseService {
     return expenses;
   }
   async deleteExpensesByUserId(
-    userId: string,
+    id: string,
     session: ClientSession,
   ): Promise<void> {
+    const userId = new Types.ObjectId(id);
     await this.expenseModel.deleteMany({ userId }, { session }).exec();
   }
 }

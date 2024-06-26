@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Account } from '../../schemas/account.schema';
 import { CreateAccountDTO } from './dto';
-import { ClientSession, Model } from 'mongoose';
+import { ClientSession, Model, Types } from 'mongoose';
 
 @Injectable()
 export class AccountService {
@@ -62,9 +62,10 @@ export class AccountService {
     }
   }
   async deleteAccountsByUserId(
-    userId: string,
+    id: string,
     session: ClientSession,
   ): Promise<void> {
+    const userId = new Types.ObjectId(id);
     await this.accountModel.deleteMany({ userId }, { session }).exec();
   }
 }

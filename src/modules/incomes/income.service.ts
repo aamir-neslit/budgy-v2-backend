@@ -121,9 +121,10 @@ export class IncomeService {
   }
 
   async deleteIncomesByUserId(
-    userId: string,
+    id: string,
     session: ClientSession,
   ): Promise<void> {
+    const userId = new Types.ObjectId(id);
     await this.incomeModel.deleteMany({ userId }, { session }).exec();
   }
 }

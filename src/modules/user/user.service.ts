@@ -93,6 +93,7 @@ export class UserService {
   }
   async validateUser(userId: string): Promise<void> {
     const user = await this.findById(userId);
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -474,8 +475,6 @@ export class UserService {
 
   async deleteUserAccountsData(userId: string): Promise<{ message: string }> {
     await this.validateUser(userId);
-
-    const user = await this.findById(userId);
 
     const session = await this.connection.startSession();
     session.startTransaction();
