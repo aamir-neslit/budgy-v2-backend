@@ -88,6 +88,15 @@ export class CategoriesService {
     session: ClientSession,
   ): Promise<void> {
     const userId = new Types.ObjectId(id);
+    await this.categoryModel
+      .deleteMany({ userId, type: 'custom' }, { session })
+      .exec();
+  }
+  async deleteAllCategoriesByUserId(
+    id: string,
+    session: ClientSession,
+  ): Promise<void> {
+    const userId = new Types.ObjectId(id);
     await this.categoryModel.deleteMany({ userId }, { session }).exec();
   }
 }
