@@ -430,7 +430,7 @@ export class UserService {
       .findByIdAndUpdate(userId, dto, { new: true })
       .exec();
 
-    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+    if (!user) throw new NotFoundException(`User  not found`);
     user.password = undefined;
     return user;
   }
@@ -484,6 +484,8 @@ export class UserService {
       await this.expenseService.deleteExpensesByUserId(userId, session);
 
       await this.categoryService.deleteCategoriesByUserId(userId, session);
+
+      await this.accountService.resetAccountDataByUserId(userId, session);
 
       await session.commitTransaction();
       return {

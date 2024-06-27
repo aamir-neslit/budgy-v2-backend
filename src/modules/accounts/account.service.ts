@@ -68,4 +68,19 @@ export class AccountService {
     const userId = new Types.ObjectId(id);
     await this.accountModel.deleteMany({ userId }, { session }).exec();
   }
+
+  async resetAccountDataByUserId(
+    userId: string,
+    session: ClientSession,
+  ): Promise<void> {
+    const userObjectId = new Types.ObjectId(userId);
+
+    await this.accountModel
+      .updateMany(
+        { userId: userObjectId },
+        { recentExpense: 0, recentIncome: 0, totalExpense: 0, totalIncome: 0 },
+        { session },
+      )
+      .exec();
+  }
 }
