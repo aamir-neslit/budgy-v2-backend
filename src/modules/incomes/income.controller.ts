@@ -22,7 +22,7 @@ import { IncomeService } from './income.service';
 export class IncomeController {
   constructor(private incomeService: IncomeService) {}
 
-  @Post()
+  @Post('add-income')
   async addIncome(@Body() createIncomeDTO: CreateIncomeDTO) {
     return await this.incomeService.create(createIncomeDTO);
   }

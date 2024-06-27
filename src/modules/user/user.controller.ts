@@ -16,6 +16,7 @@ import { MongoIdValidationPipe } from 'src/common/pipes/mongo-id.pipe';
 import { JwtAuthGuard } from '../../common/guards';
 import { ChangePassDTO, DeleteUserDTO, UpdateProfileDTO } from './dto';
 import { UserService } from './user.service';
+import { Types } from 'mongoose';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

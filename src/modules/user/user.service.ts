@@ -82,17 +82,18 @@ export class UserService {
     const user = await this.userModel.findOne({ email }).exec();
 
     if (user) return user;
-    else throw new NotFoundException(`User with email ${email} not found`);
+    else throw new NotFoundException(`User not found`);
   }
 
   async findById(userId: string): Promise<User> {
     const user = await this.userModel.findById(userId).exec();
 
-    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+    if (!user) throw new NotFoundException(`User not found`);
     return user;
   }
   async validateUser(userId: string): Promise<void> {
     const user = await this.findById(userId);
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -455,7 +456,7 @@ export class UserService {
 
       await this.expenseService.deleteExpensesByUserId(userId, session);
 
-      await this.categoryService.deleteCategoriesByUserId(userId, session);
+      await this.categoryService.deleteAllCategoriesByUserId(userId, session);
 
       await this.accountService.deleteAccountsByUserId(userId, session);
       await this.userModel.findByIdAndDelete(userId, { session }).exec();
@@ -475,8 +476,6 @@ export class UserService {
   async deleteUserAccountsData(userId: string): Promise<{ message: string }> {
     await this.validateUser(userId);
 
-    const user = await this.findById(userId);
-
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
@@ -485,8 +484,6 @@ export class UserService {
       await this.expenseService.deleteExpensesByUserId(userId, session);
 
       await this.categoryService.deleteCategoriesByUserId(userId, session);
-
-      await this.accountService.deleteAccountsByUserId(userId, session);
 
       await session.commitTransaction();
       return {
