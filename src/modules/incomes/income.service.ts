@@ -108,6 +108,11 @@ export class IncomeService {
             'category.type': 1,
           },
         },
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
       ])
       .exec();
 
